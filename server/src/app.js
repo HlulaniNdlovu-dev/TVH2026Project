@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
 import routes from './routes/index.js';
 import { config } from './config/index.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
@@ -9,6 +10,8 @@ const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\
 
 export function createApp() {
   const app = express();
+  // JSON compresses roughly 10x, which matters on phones and slow links.
+  app.use(compression());
   const allowed = new Set([config.frontendUrl, ...config.corsOrigins].map((o) => o.replace(/\/$/, '')));
   app.use(
     cors({
