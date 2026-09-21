@@ -50,7 +50,7 @@ export async function assign(incident, tech, { actor = null, reasoning = null, r
       etaMinutes: null, departedAt: null, arrivedAt: null, startedAt: null, pausedReason: null, nearbyNotified: false,
     },
   );
-  await notifications.notifyStatus(updated, 'dispatched', { techName: tech.name, employeeId: tech.employeeId });
+  await notifications.notifyStatus(updated, 'dispatched', { employeeId: tech.employeeId });
   return job;
 }
 

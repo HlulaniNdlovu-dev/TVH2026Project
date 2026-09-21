@@ -9,7 +9,7 @@ export default function IncidentStepper({ incident, variant = 'vertical' }) {
   const at = Object.fromEntries((incident.steps ?? []).map((s) => [s.status, s.at]));
 
   const detail = (status) => {
-    if (status === 'dispatched' && incident.technician) return `${incident.technician.name} (${incident.technician.employeeId})`;
+    if (status === 'dispatched' && incident.technician) return `Technician ${incident.technician.employeeId}`;
     if (status === 'en_route' && incident.status === 'en_route' && incident.etaMinutes) return `Estimated arrival in ~${incident.etaMinutes} min`;
     if (status === 'working' && incident.status === 'paused') return `Paused: ${incident.pausedReason}`;
     return null;

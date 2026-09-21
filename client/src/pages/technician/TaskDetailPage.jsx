@@ -25,10 +25,12 @@ export default function TaskDetailPage() {
   if (loading && !job) return <Spinner label="Loading task..." />;
   if (!job) return <Banner tone="error">{error?.message ?? 'Could not load this task.'}</Banner>;
 
-  const { incident, site, affectedArea } = job;
+  const { incident, site, affectedArea, technicianLocation } = job;
   const closed = ['closed', 'cancelled', 'declined'].includes(job.state);
   const inProgress = ['arrived', 'working', 'paused'].includes(incident.status) && !closed;
   const canTravel = job.state === 'accepted' && ['dispatched', 'en_route'].includes(incident.status);
+  // The route map is only useful between accepting the job and arriving on site (Start Job).
+  const showRouteMap = canTravel && !closed && site;
 
   // Navigate opens the route in Google Maps, and tells the customer you are on your way.
   const navigateNow = async () => {
@@ -87,18 +89,17 @@ export default function TaskDetailPage() {
         )}
       </div>
 
-      {!closed && !inProgress && site && (
+      {showRouteMap && (
         <div className="card">
-          <div className="row-between"><h2 style={{ margin: 0 }}>Site map</h2><span className="badge badge-red">Affected area</span></div>
-          <p className="muted small" style={{ margin: '4px 0 10px' }}>{site.address}. The red area shows where customers are without power.</p>
-          <AffectedAreaMap site={site} affectedArea={affectedArea} />
+          <div className="row-between"><h2 style={{ margin: 0 }}>Route to site</h2><span className="badge badge-red">Affected area</span></div>
+          <p className="muted small" style={{ margin: '4px 0 10px' }}>{site.address}. The dashed line is your route; the red area shows where customers are without power.</p>
+          <AffectedAreaMap site={site} affectedArea={affectedArea} technician={technicianLocation} />
           <div className="row" style={{ marginTop: 12 }}>
             <button type="button" className="btn grow" disabled={!canTravel || actions.busy} onClick={navigateNow}>
               <Icon name="navigate" size={18} /> {incident.status === 'en_route' ? 'Open navigation' : 'Navigate'}
             </button>
             <button type="button" className="btn btn-outline grow" disabled={!canTravel || actions.busy} onClick={actions.start}>Start Job</button>
           </div>
-          {job.state === 'pending' && <p className="muted small" style={{ marginBottom: 0 }}>Accept the job to enable navigation.</p>}
           {incident.status === 'en_route' && <p className="small" style={{ marginBottom: 0, marginTop: 8 }}>The customer can see you are on your way{incident.etaMinutes ? ` (ETA ~${incident.etaMinutes} min)` : ''}. Tap Start Job when you arrive.</p>}
         </div>
       )}

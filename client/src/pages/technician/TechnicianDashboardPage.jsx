@@ -7,7 +7,7 @@ import TaskCard from '../../features/jobs/TaskCard.jsx';
 import RepairStatusActions from '../../features/jobs/RepairStatusActions.jsx';
 import DeclineJobModal from '../../features/jobs/DeclineJobModal.jsx';
 import Switch from '../../components/Switch.jsx';
-import StatCard from '../../components/StatCard.jsx';
+import StatCard, { pct } from '../../components/StatCard.jsx';
 import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import Icon from '../../components/Icon.jsx';
@@ -88,10 +88,10 @@ export default function TechnicianDashboardPage() {
         <Switch label="Available for jobs" checked={available} onChange={changeDuty} />
       </div>
 
-      <div className="stat-grid stat-grid-3">
-        <StatCard label="Jobs today" value={stats.jobsToday} icon="tasks" />
-        <StatCard label="Avg completion time" value={stats.avgCompletionMinutes != null ? formatDuration(stats.avgCompletionMinutes) : '-'} icon="clock" tone="blue" />
-        <StatCard label="Jobs completed" value={stats.jobsCompleted} icon="check" />
+      <div className="stat-grid stat-grid-half">
+        <StatCard label="Jobs today" value={stats.jobsToday} progress={pct(stats.jobsToday, Math.max(5, stats.jobsToday))} hint="bar: 5 jobs" />
+        <StatCard label="Avg completion time" value={stats.avgCompletionMinutes != null ? formatDuration(stats.avgCompletionMinutes) : '-'} progress={pct(stats.avgCompletionMinutes, 120)} tone="blue" hint="bar: 2 h" />
+        <StatCard label="Jobs completed" value={stats.jobsCompleted} progress={pct(stats.jobsCompleted, Math.max(10, stats.jobsCompleted))} hint="bar: 10 jobs" />
       </div>
 
       <section className="stack">

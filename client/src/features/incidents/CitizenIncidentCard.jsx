@@ -26,8 +26,8 @@ export default function CitizenIncidentCard({ incident }) {
       <div className="incident-facts">
         {incident.technician && (
           <div>
-            <span className="muted small">Technician</span>
-            <strong>{incident.technician.name}</strong>
+            <span className="muted small">Technician reference</span>
+            <strong>{incident.technician.employeeId}</strong>
           </div>
         )}
         {incident.status === 'en_route' && (

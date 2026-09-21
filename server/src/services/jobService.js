@@ -85,7 +85,7 @@ export async function startTravel(user, jobId) {
     { type: 'en_route', actor: user.name, message: `${user.name} left for the site (ETA ${eta} min)` },
     { status: 'en_route', departedAt: nowIso(), etaMinutes: eta, nearbyNotified: false },
   );
-  await notifications.notifyStatus(updated, 'en_route', { techName: user.name, eta });
+  await notifications.notifyStatus(updated, 'en_route', { employeeId: user.employeeId, eta });
   return detail(user, jobId);
 }
 
@@ -101,7 +101,7 @@ export async function startJob(user, jobId) {
     { type: 'working', actor: user.name, message: 'Work started' },
     { status: 'working', startedAt: now, etaMinutes: null },
   );
-  await notifications.notifyStatus(updated, 'arrived', { techName: user.name });
+  await notifications.notifyStatus(updated, 'arrived', { employeeId: user.employeeId });
   return detail(user, jobId);
 }
 
@@ -125,7 +125,7 @@ export async function resume(user, jobId) {
   requireState(job, ['accepted'], 'resume');
   requireStatus(incident, ['paused'], 'resume');
   const updated = await stubs.recordIncidentEvent(incident.id, { type: 'resumed', actor: user.name, message: 'Work resumed' }, { status: 'working', pausedReason: null });
-  await notifications.notifyStatus(updated, 'resumed', { techName: user.name });
+  await notifications.notifyStatus(updated, 'resumed', { employeeId: user.employeeId });
   return detail(user, jobId);
 }
 

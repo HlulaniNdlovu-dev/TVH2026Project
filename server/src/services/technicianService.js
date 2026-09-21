@@ -38,7 +38,7 @@ export async function updateLocation(techId, lat, lng) {
   if (distance <= 500 && !active.nearbyNotified) {
     patch.nearbyNotified = true;
     await stubs.updateIncident(active.id, patch);
-    await notifications.notifyStatus({ ...active, ...patch }, 'nearby', { techName: tech.name });
+    await notifications.notifyStatus({ ...active, ...patch }, 'nearby', { employeeId: tech.employeeId });
     return;
   }
   await stubs.updateIncident(active.id, patch);

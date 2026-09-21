@@ -38,7 +38,7 @@ function HistoryItem({ incident }) {
       </div>
       <div className="muted small">{incident.id} · {formatDateTime(incident.createdAt)} → {formatDateTime(incident.resolvedAt)}</div>
       {incident.myMeters.length > 0 && <div className="small">Meter {incident.myMeters.join(', ')}</div>}
-      {incident.technician && <div className="small">Fixed by {incident.technician.name}</div>}
+      {incident.technician && <div className="small">Fixed by technician {incident.technician.employeeId}</div>}
       {incident.resolutionSummary && <div className="small muted">Cause: {incident.resolutionSummary}</div>}
     </div>
   );

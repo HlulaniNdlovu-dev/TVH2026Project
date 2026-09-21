@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { usePolling } from '../../hooks/usePolling.js';
 import * as adminService from '../../services/adminService.js';
 import PageHeader from '../../components/PageHeader.jsx';
-import StatCard from '../../components/StatCard.jsx';
+import StatCard, { pct } from '../../components/StatCard.jsx';
 import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { formatWatts, timeAgo } from '../../utils/format.js';
@@ -30,11 +30,11 @@ export default function SensorsPage() {
   return (
     <>
       <PageHeader title="Sensors" subtitle="Health of every smart meter, transformer and substation sensor." />
-      <div className="stat-grid" style={{ marginBottom: 18 }}>
-        <StatCard label="Sensors" value={data.length} icon="sensor" />
-        <StatCard label="Reporting power off" value={data.filter((s) => s.state === 'OFF').length} icon="bolt" tone="red" />
-        <StatCard label="Not reporting" value={data.filter((s) => !s.online).length} icon="alert" tone="amber" hint="no heartbeat for 30 s" />
-        <StatCard label="Flicker events" value={data.reduce((sum, s) => sum + s.flickerCount, 0)} icon="refresh" tone="blue" hint="brief drops that were ignored" />
+      <div className="stat-grid stat-grid-half" style={{ marginBottom: 18 }}>
+        <StatCard label="Sensors" value={data.length} progress={pct(data.filter((s) => s.online).length, data.length)} hint={`${data.filter((s) => s.online).length} reporting`} />
+        <StatCard label="Reporting power off" value={data.filter((s) => s.state === 'OFF').length} progress={pct(data.filter((s) => s.state === 'OFF').length, data.length)} tone="red" hint={`of ${data.length} sensors`} />
+        <StatCard label="Not reporting" value={data.filter((s) => !s.online).length} progress={pct(data.filter((s) => !s.online).length, data.length)} tone="amber" hint="no heartbeat for 30 s" />
+        <StatCard label="Flicker events" value={data.reduce((sum, s) => sum + s.flickerCount, 0)} progress={pct(data.reduce((sum, s) => sum + s.flickerCount, 0), Math.max(20, data.reduce((sum, s) => sum + s.flickerCount, 0)))} tone="blue" hint="brief drops that were ignored (bar: 20)" />
       </div>
       <div className="row" style={{ marginBottom: 14 }}>
         <div className="tabs">

@@ -32,7 +32,8 @@ export function citizenIncident(incident, userId, refs) {
     reportedByYou: incident.reporterIds.includes(userId),
     createdAt: incident.createdAt,
     resolvedAt: incident.resolvedAt,
-    technician: tech ? { name: tech.name, employeeId: tech.employeeId } : null,
+    // Citizens only ever see the technician's reference number, never a name (safety).
+    technician: tech ? { employeeId: tech.employeeId } : null,
     etaMinutes: incident.status === 'en_route' ? incident.etaMinutes : null,
     departedAt: incident.departedAt,
     pausedReason: incident.status === 'paused' ? pauseLabel(incident.pausedReason) : null,
@@ -138,6 +139,7 @@ export async function technicianJob(job, incident, refs) {
       timeline: incident.timeline,
     },
     site: node ? { lat: node.lat, lng: node.lng, name: node.type === 'house' ? `Meter ${node.meterNumber}` : node.name, address: node.address ?? `${node.name}, ${node.area}` } : null,
+    technicianLocation: refs.usersById.get(job.technicianId)?.tech?.lat != null ? { lat: refs.usersById.get(job.technicianId).tech.lat, lng: refs.usersById.get(job.technicianId).tech.lng } : null,
     affectedArea: area ? { ...area, houses: houses.map((h) => ({ lat: h.lat, lng: h.lng })) } : null,
     reports: reports.slice(0, 5).map((r) => ({ category: CATEGORY_LABELS[r.category] ?? r.category, description: r.description, photoId: r.photoId, at: r.createdAt })),
   };
