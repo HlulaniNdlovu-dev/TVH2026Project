@@ -14,12 +14,12 @@ Report outage -> Verify / deduplicate -> Prioritise -> Dispatch -> Assign techni
 | Folder | What it is | Port |
 | --- | --- | --- |
 | `client/` | React (Vite) web app: landing, citizen PWA, technician PWA, admin portal. Plain CSS. | 5173 |
-| `server/` | Express API. All data is **in memory** (no database), reached only through `server/src/db/stubs.js`. | 4000 |
+| `server/` | Express API backed by a **MySQL** database, reached only through `server/src/db/stubs.js`. | 4000 |
 | `simulator/` | Pretends to be the sensors and technician phones. Has its own control panel. | 5050 |
 
 ## Run it
 
-You need Node 18 or newer. Open three terminals from this folder.
+You need Node 18 or newer and a MySQL server (8.x or MariaDB) on localhost. Open three terminals from this folder.
 
 ```bash
 # one time
@@ -27,6 +27,9 @@ npm --prefix server install
 npm --prefix client install
 npm --prefix simulator install
 ```
+
+Copy `server/.env.example` to `server/.env` and set `DB_PASSWORD` if your MySQL root user has one. The `powerlink` database, its tables and
+the demo data are created automatically on first start.
 
 ```bash
 npm --prefix server run dev
@@ -46,7 +49,7 @@ Then open:
 - Simulator control panel: <http://localhost:5050>
 - On a phone on the same Wi-Fi: `http://<your-computer-ip>:5173` (Vite prints the address).
 
-If you restart the server, all data goes back to the seed data. Use **Reset demo data** in the admin sidebar (or the
+Data now lives in MySQL and survives restarts. Use **Reset demo data** in the admin sidebar (or the
 simulator panel) to reset without restarting.
 
 ## Demo accounts
@@ -110,18 +113,29 @@ Log in as a citizen on a phone, a technician on another window and the admin on 
 | simulator | `API_URL` | `http://localhost:4000/api` | API address to send readings to |
 | simulator | `DEVICE_KEY` | `powerlink-sim-key` | must match the server |
 
-## Hosting later
+## Hosting on Render
 
-1. Deploy `server/` as a **single always-on instance** (data lives in memory, so free tiers that sleep will reset it).
-2. Build the client with `VITE_API_URL=https://your-api/api npm --prefix client run build` and host `client/dist` on any
-   static host (a `_redirects` file for single-page routing is included).
-3. Run the simulator anywhere with `API_URL=https://your-api/api`.
-4. HTTPS is required for phone location and "install app" to work off `localhost`.
+| Piece | Render type | URL |
+| --- | --- | --- |
+| MySQL | external (Render has no MySQL) e.g. Aiven, TiDB Cloud, Railway | connection string |
+| `server/` | **Web Service** | https://tvh2026project-backend.onrender.com |
+| `client/` | **Static Site** | https://tvh2026project.onrender.com |
+| `simulator/` | **Web Service** (Node, always running) | your choice |
+
+**Backend** (Root Directory `server`, Build `npm install`, Start `npm start`). Environment: `DATABASE_URL`, `DB_SSL=true` (if the
+host needs TLS), `DEVICE_KEY` (any secret). Health check path: `/health`.
+
+**Frontend** (Root Directory `client`, Build `npm install && npm run build`, Publish Directory `dist`). No variables needed: on
+`localhost` or a Wi-Fi address it uses port 4000 of that machine, anywhere else it uses the hosted backend. Set `VITE_API_URL`
+to override. Rewrite rule: `/*` to `/index.html` (the `_redirects` file covers this).
+
+**Simulator** (Root Directory `simulator`, Build `npm install`, Start `npm start`). Environment:
+`API_URL=https://tvh2026project-backend.onrender.com/api`, `DEVICE_KEY` (same as the backend).
 
 ## Prototype limits (by design)
 
+- Data is stored in MySQL (tables in `server/src/db/schema.sql`, created automatically).
 - No real authentication: the browser stores the user in `localStorage` and sends the id in a header. Passwords are
   stored as plain text. Do not use with real data.
-- No database: replace the function bodies in `server/src/db/stubs.js` to move to MySQL. Nothing else has to change.
 - SMS and push are simulated (in-app notifications and an SMS inbox on the Notifications page).
 - Technician GPS comes from the simulator; navigation opens Google Maps.
