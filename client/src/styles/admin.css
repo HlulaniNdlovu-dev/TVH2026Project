@@ -1,0 +1,25 @@
+/* ---------- admin pages ---------- */
+.grid-main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); gap: 20px; align-items: start; }
+.grid-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+.map-side { max-height: calc(100vh - 210px); overflow: auto; }
+.side-incident { display: block; padding: 12px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: inherit; }
+.side-incident:hover { background: var(--green-50); border-color: var(--green-200); }
+.detail-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); gap: 18px; align-items: start; }
+.dispatch-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 20px; align-items: start; }
+.dispatch-item { display: flex; align-items: center; gap: 12px; }
+.plain-list { margin: 0; padding-left: 18px; color: var(--ink-2); }
+.plain-list li { margin-bottom: 8px; }
+
+.grid-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 22px; }
+.grid-charts .span-2 { grid-column: 1 / -1; }
+.chart-card h3 { margin-bottom: 2px; }
+
+@media (max-width: 1100px) {
+  .grid-map-layout, .grid-main, .detail-layout, .dispatch-layout { grid-template-columns: 1fr; }
+  .map-side { max-height: none; }
+  .map-lg { height: 60vh; }
+}
+@media (max-width: 720px) {
+  .grid-charts { grid-template-columns: 1fr; }
+  .bar-row { grid-template-columns: 110px 1fr 34px; }
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PowerLink Sensor Simulator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div>
+        <h1>PowerLink <span>Sensor Simulator</span></h1>
+        <p class="sub">Pretends to be the smart meters, transformer sensors and technician phones, and talks to the PowerLink API.</p>
+      </div>
+      <div id="status" class="status"></div>
+    </header>
+
+    <main class="layout">
+      <section class="card">
+        <h2>Quick scenarios</h2>
+        <p class="hint">Trip something and watch the admin map, incidents and citizen apps react.</p>
+        <div class="row">
+          <button data-scenario="ownedHouse">Trip a customer's meter</button>
+          <button data-scenario="anyHouse">Trip a random house</button>
+          <button data-scenario="flicker">Flicker (6 s, should be ignored)</button>
+        </div>
+        <div class="row">
+          <select id="transformerSelect"></select>
+          <button class="warn" id="transformerBtn">Fail transformer</button>
+        </div>
+        <div class="row">
+          <select id="substationSelect"></select>
+          <button class="danger" id="substationBtn">Fail substation</button>
+        </div>
+        <hr />
+        <h3>Loadshedding</h3>
+        <div class="row">
+          <select id="areaSelect"></select>
+          <input id="lsMinutes" type="number" min="1" max="30" value="2" title="Minutes" />
+          <span class="unit">min</span>
+          <label class="check"><input id="lsOverrun" type="checkbox" /> power stays off 4 min after the schedule ends</label>
+        </div>
+        <div class="row"><button id="lsBtn">Start loadshedding</button></div>
+        <hr />
+        <div class="row">
+          <button class="ok" id="restoreAllBtn">Restore everything</button>
+          <button class="ghost" id="resetBtn">Reset backend demo data</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Technicians</h2>
+        <p class="hint">Technicians who tap "Navigate" drive to the incident automatically.</p>
+        <div class="row">
+          <label class="check"><input id="autoDrive" type="checkbox" checked /> Auto-drive technicians</label>
+          <select id="speed">
+            <option value="1">1x (real time)</option>
+            <option value="5">5x</option>
+            <option value="10" selected>10x</option>
+            <option value="30">30x</option>
+          </select>
+        </div>
+        <ul id="techList" class="plain"></ul>
+        <h2 class="mt">Event log</h2>
+        <ul id="log" class="log"></ul>
+      </section>
+
+      <section class="card wide">
+        <h2>Grid <small id="gridSummary"></small></h2>
+        <div id="tree"></div>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

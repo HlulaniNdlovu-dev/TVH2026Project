@@ -1,0 +1,14 @@
+{
+  "name": "powerlink-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "PowerLink sensor + technician simulator (separate application)",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
