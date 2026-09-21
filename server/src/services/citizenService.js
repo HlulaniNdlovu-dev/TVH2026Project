@@ -8,6 +8,7 @@ import * as notifications from './notificationService.js';
 import * as meterService from './meterService.js';
 import * as views from './viewService.js';
 import { sanitize } from './authService.js';
+import { unitsOf } from '../utils/units.js';
 
 // Live state of each of the citizen's meters, straight from the sensors.
 export async function meters(user) {
@@ -19,6 +20,7 @@ export async function meters(user) {
       area: node?.area ?? null,
       state: node?.state ?? 'ON',
       watts: node?.watts ?? 0,
+      units: node ? Math.round(unitsOf(node) * 10) / 10 : null,
       offReason: node?.offReason ?? null,
       online: node ? secondsSince(node.lastHeartbeat) <= config.sensorOfflineSeconds : false,
     };

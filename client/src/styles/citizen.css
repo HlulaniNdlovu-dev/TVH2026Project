@@ -9,7 +9,10 @@
 .meter-card.meter-ls { border-left-color: #e59a1a; }
 .meter-reading { display: flex; align-items: baseline; gap: 10px; margin: 10px 0 6px; flex-wrap: wrap; }
 .meter-reading .watts { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; }
-.meter-off .watts { color: var(--red); }
+.units-low { color: var(--red); }
+.meter-unit-label { font-weight: 600; color: var(--ink-2); }
+.meter-secondary { margin-top: 8px; }
+.meter-bar-low span { background: linear-gradient(90deg, #f0a0a0, var(--red)); }
 .meter-bar { height: 8px; border-radius: 999px; background: var(--grey-bg); overflow: hidden; }
 .meter-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--green-300), var(--green-600)); border-radius: 999px; transition: width .8s ease; }
 

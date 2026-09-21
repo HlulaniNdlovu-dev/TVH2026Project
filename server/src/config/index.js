@@ -22,6 +22,8 @@ export const config = {
   avgSpeedKmh: num(process.env.AVG_SPEED_KMH, 40),
   // Reports made within this distance of the registered meter are trusted fully.
   trustRadiusMeters: num(process.env.TRUST_RADIUS_METERS, 200),
+  // 1 real second of use counts as this many seconds on a prepaid meter (demo speed-up).
+  unitsDemoFactor: num(process.env.UNITS_DEMO_FACTOR, 60),
   remoteReportWeight: 0.3,
   maxOpenJobsPerTechnician: 3,
 };

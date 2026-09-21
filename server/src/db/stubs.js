@@ -39,8 +39,8 @@ const clone = (value) => (value === undefined ? value : structuredClone(value));
 const rows = async (sql, params = []) => (await pool.query(sql, params))[0];
 const parse = (row) => (typeof row.data === 'string' ? JSON.parse(row.data) : row.data);
 
-// Sensors report watts, battery and a heartbeat every few seconds. Those live only in memory.
-const fingerprint = (table, record) => JSON.stringify(table === 'nodes' ? { ...record, lastHeartbeat: 0, watts: 0, battery: 0 } : record);
+// Sensors report watts, battery, units and a heartbeat every few seconds. Those live only in memory.
+const fingerprint = (table, record) => JSON.stringify(table === 'nodes' ? { ...record, lastHeartbeat: 0, watts: 0, battery: 0, units: 0 } : record);
 
 /* ------------------------------ background saving ------------------------------ */
 const queues = {};

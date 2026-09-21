@@ -3,7 +3,7 @@ import { usePolling } from '../../hooks/usePolling.js';
 import * as adminService from '../../services/adminService.js';
 import ChartCard, { CHART_COLORS } from '../../features/analytics/ChartCard.jsx';
 import PageHeader from '../../components/PageHeader.jsx';
-import StatCard from '../../components/StatCard.jsx';
+import StatCard, { pct } from '../../components/StatCard.jsx';
 import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { formatDuration } from '../../utils/format.js';
@@ -46,12 +46,12 @@ export default function AnalyticsPage() {
     <>
       <PageHeader title="Grid and technician analytics" subtitle="The last 30 days: response, resolution, hotspots and recurring faults." />
 
-      <div className="stat-grid">
-        <StatCard label="Incidents (30 days)" value={k.incidents30d} icon="alert" tone="blue" />
-        <StatCard label="Avg response time" value={formatDuration(k.avgResponseMinutes)} icon="clock" hint="to technician on site" />
-        <StatCard label="Avg resolution time" value={formatDuration(k.avgResolutionMinutes)} icon="check" />
-        <StatCard label="First-time fix rate" value={k.firstTimeFixRate != null ? `${k.firstTimeFixRate}%` : '-'} icon="wrench" hint="resolved without pausing" />
-        <StatCard label="Flickers ignored" value={k.flickerEvents} icon="refresh" tone="amber" hint="brief drops, no dispatch" />
+      <div className="stat-grid stat-grid-half">
+        <StatCard label="Incidents (30 days)" value={k.incidents30d} progress={pct(k.incidents30d, Math.max(60, k.incidents30d))} tone="blue" hint="bar: 60 incidents" />
+        <StatCard label="Avg response time" value={formatDuration(k.avgResponseMinutes)} progress={pct(k.avgResponseMinutes, 60)} hint="to technician on site (bar: 60 min)" />
+        <StatCard label="Avg resolution time" value={formatDuration(k.avgResolutionMinutes)} progress={pct(k.avgResolutionMinutes, 240)} hint="report to power restored (bar: 4 h)" />
+        <StatCard label="First-time fix rate" value={k.firstTimeFixRate != null ? `${k.firstTimeFixRate}%` : '-'} progress={k.firstTimeFixRate ?? 0} hint="resolved without pausing" />
+        <StatCard label="Flickers ignored" value={k.flickerEvents} progress={pct(k.flickerEvents, Math.max(20, k.flickerEvents))} tone="amber" hint="brief drops, no dispatch (bar: 20)" />
       </div>
 
       <div className="grid-charts">

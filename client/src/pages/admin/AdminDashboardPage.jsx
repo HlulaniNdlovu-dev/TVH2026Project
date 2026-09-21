@@ -3,7 +3,7 @@ import { usePolling } from '../../hooks/usePolling.js';
 import * as adminService from '../../services/adminService.js';
 import IncidentTable from '../../features/incidents/IncidentTable.jsx';
 import PageHeader from '../../components/PageHeader.jsx';
-import StatCard from '../../components/StatCard.jsx';
+import StatCard, { pct } from '../../components/StatCard.jsx';
 import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { formatDuration, formatTime, timeAgo } from '../../utils/format.js';
@@ -24,14 +24,14 @@ export default function AdminDashboardPage() {
         </div>
       ))}
 
-      <div className="stat-grid">
-        <StatCard label="Active outages" value={k.activeIncidents} icon="alert" tone={k.activeIncidents ? 'red' : 'green'} hint={k.pendingReports ? `${k.pendingReports} report(s) awaiting verification` : 'All verified'} />
-        <StatCard label="Customers without power" value={k.customersWithoutPower} icon="bolt" tone={k.customersWithoutPower ? 'red' : 'green'} hint={`of ${k.totalCustomers} monitored${k.customersInLoadshedding ? ` · ${k.customersInLoadshedding} in loadshedding` : ''}`} />
-        <StatCard label="Avg response time" value={formatDuration(k.avgResponseMinutes)} icon="clock" tone="blue" hint="report to technician on site" />
-        <StatCard label="Avg resolution time" value={formatDuration(k.avgResolutionMinutes)} icon="check" tone="blue" hint="report to power restored" />
-        <StatCard label="SLA breaches" value={k.slaBreaches} icon="shield" tone={k.slaBreaches ? 'amber' : 'green'} hint={`${k.unassignedUrgent} urgent job(s) unassigned`} />
-        <StatCard label="Technicians available" value={`${k.techniciansAvailable}`} icon="truck" hint={`${k.techniciansBusy} busy · ${k.techniciansUnavailable} unavailable`} />
-        <StatCard label="Sensors offline" value={k.sensorsOffline} icon="sensor" tone={k.sensorsOffline ? 'amber' : 'green'} hint={`of ${k.sensorsTotal} sensors`} />
+      <div className="stat-grid stat-grid-half">
+        <StatCard label="Active outages" value={k.activeIncidents} progress={pct(k.activeIncidents, Math.max(10, k.activeIncidents))} tone={k.activeIncidents ? 'red' : 'green'} hint={k.pendingReports ? `${k.pendingReports} report(s) awaiting verification` : 'All verified'} />
+        <StatCard label="Customers without power" value={k.customersWithoutPower} progress={pct(k.customersWithoutPower, k.totalCustomers)} tone={k.customersWithoutPower ? 'red' : 'green'} hint={`of ${k.totalCustomers} monitored${k.customersInLoadshedding ? ` · ${k.customersInLoadshedding} in loadshedding` : ''}`} />
+        <StatCard label="Avg response time" value={formatDuration(k.avgResponseMinutes)} progress={pct(k.avgResponseMinutes, 60)} tone="blue" hint="report to technician on site (bar: 60 min)" />
+        <StatCard label="Avg resolution time" value={formatDuration(k.avgResolutionMinutes)} progress={pct(k.avgResolutionMinutes, 240)} tone="blue" hint="report to power restored (bar: 4 h)" />
+        <StatCard label="SLA breaches" value={k.slaBreaches} progress={pct(k.slaBreaches, Math.max(1, k.activeIncidents))} tone={k.slaBreaches ? 'amber' : 'green'} hint={`${k.unassignedUrgent} urgent job(s) unassigned`} />
+        <StatCard label="Technicians available" value={`${k.techniciansAvailable}`} progress={pct(k.techniciansAvailable, k.techniciansAvailable + k.techniciansBusy + k.techniciansUnavailable)} hint={`${k.techniciansBusy} busy · ${k.techniciansUnavailable} unavailable`} />
+        <StatCard label="Sensors offline" value={k.sensorsOffline} progress={pct(k.sensorsOffline, k.sensorsTotal)} tone={k.sensorsOffline ? 'amber' : 'green'} hint={`of ${k.sensorsTotal} sensors`} />
       </div>
 
       <div className="grid-main">

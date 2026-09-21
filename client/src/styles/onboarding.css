@@ -26,7 +26,7 @@
 
 .landing-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; max-width: 1180px; margin: 0 auto; padding: 8px 24px 40px; }
 .feature { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
-.feature h3 { margin: 12px 0 6px; }
+.feature h3 { margin: 0 0 6px; }
 .feature p { color: var(--muted); margin: 0; }
 .feature-icon { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 12px; background: var(--green-100); color: var(--green-700); }
 .landing-foot { text-align: center; color: var(--muted); font-size: .85rem; padding: 18px 24px 30px; }
@@ -49,3 +49,6 @@
 .demo-accounts { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
 .demo-accounts summary { cursor: pointer; font-weight: 600; color: var(--green-700); }
 .address-picker { margin-top: 6px; }
+
+.back-link { display: inline-block; margin-bottom: 14px; font-weight: 600; font-size: .92rem; color: var(--ink-2); }
+.back-link:hover { color: var(--green-700); }

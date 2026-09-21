@@ -40,6 +40,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <Link to="/" className="back-link">&larr; Back to home</Link>
         <Link to="/" aria-label="PowerLink home"><Logo size={40} /></Link>
         <h1>Welcome back</h1>
         <p className="muted">Log in with your phone number.</p>

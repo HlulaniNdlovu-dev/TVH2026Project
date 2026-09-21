@@ -8,6 +8,17 @@
 .stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
 .stat-label { font-size: .82rem; color: var(--muted); font-weight: 600; }
 .stat-hint { font-size: .76rem; color: var(--muted); }
+.stat-bar-card { display: block; }
+.stat-bar-card .stat-body { width: 100%; }
+.stat-bar-card .stat-value { margin: 2px 0 8px; font-size: 1.9rem; }
+.stat-bar { height: 8px; border-radius: 999px; background: var(--grey-bg); overflow: hidden; margin-bottom: 8px; }
+.stat-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--green-300), var(--green-600)); transition: width .8s ease; }
+.stat-red .stat-bar span { background: linear-gradient(90deg, #f0a0a0, var(--red)); }
+.stat-amber .stat-bar span { background: linear-gradient(90deg, #f6d08a, var(--amber)); }
+.stat-blue .stat-bar span { background: linear-gradient(90deg, #9cc4f5, var(--blue)); }
+/* Two cards per row: each takes half of the width. One per row on phones. */
+.stat-grid-half { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 560px) { .stat-grid-half { grid-template-columns: 1fr; } }
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
 
 /* ---------- photos ---------- */

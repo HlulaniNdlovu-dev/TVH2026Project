@@ -42,10 +42,20 @@ export function buildUsers(nodes) {
     tech('T-104', 'PL-104', 'Kagiso Molefe', '0744444444', 'unavailable', -25.7201, 28.3655, ['house']),
   ];
 
+  const admins = [
+    { id: 'A-002', role: 'admin', name: 'Martha Peter', phone: '0000000001', email: 'martha.peter@powerlink.example', password: 'test1234!', createdAt: iso() },
+    { id: 'A-003', role: 'admin', name: 'Elize Koetzee', phone: '0000000011', email: 'elize.koetzee@powerlink.example', password: 'test1234!', createdAt: iso() },
+  ];
+  technicians.push(
+    tech('T-105', 'PL-105', 'Nomsa Zwane', '0000000111', 'available', -25.7069, 28.3999, ['house', 'transformer']),
+    tech('T-106', 'PL-106', 'Thabo Zulu', '0000001111', 'available', -25.7099, 28.3363, ['house', 'transformer']),
+  );
+  technicians.slice(-2).forEach((t) => { t.password = 'test1234!'; });
+
   const admin = {
     id: 'A-001', role: 'admin', name: 'Palesa Ndlovu', phone: '0700000000', email: 'admin@powerlink.example',
     password: 'admin', createdAt: iso(),
   };
 
-  return [...citizens, ...technicians, admin];
+  return [...citizens, ...technicians, admin, ...admins];
 }

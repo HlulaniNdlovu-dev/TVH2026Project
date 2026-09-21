@@ -3,6 +3,7 @@ import * as stubs from '../db/stubs.js';
 import { config } from '../config/index.js';
 import { nowIso, secondsSince } from '../utils/time.js';
 import * as technicians from './technicianService.js';
+import { unitsOf } from '../utils/units.js';
 
 export async function ingest(readings) {
   const nodes = await stubs.listNodes();
@@ -14,6 +15,11 @@ export async function ingest(readings) {
     const state = r.state === 'OFF' ? 'OFF' : 'ON';
     const patch = { watts: state === 'OFF' ? 0 : Number(r.watts) || 0, lastHeartbeat: nowIso() };
     if (r.battery != null) patch.battery = r.battery;
+    if (node.type === 'house') {
+      // Prepaid units drain with use. UNITS_DEMO_FACTOR speeds time up so the balance visibly moves during a demo.
+      const hours = node.lastHeartbeat ? Math.min(secondsSince(node.lastHeartbeat), 60) / 3600 : 0;
+      patch.units = Math.max(0, unitsOf(node) - (patch.watts / 1000) * hours * config.unitsDemoFactor);
+    }
     if (state !== node.state) {
       patch.state = state;
       if (state === 'OFF') {

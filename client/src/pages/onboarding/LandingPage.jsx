@@ -1,14 +1,13 @@
 import { Link, Navigate } from 'react-router-dom';
 import Logo from '../../components/Logo.jsx';
 import HeroHouses from '../../components/HeroHouses.jsx';
-import Icon from '../../components/Icon.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
 import { homeForRole } from '../../features/auth/AuthContext.jsx';
 
 const FEATURES = [
-  { icon: 'alert', title: 'Report in seconds', text: 'Tell the City about a power problem with your meter number and location. No queues, no call centres.' },
-  { icon: 'map', title: 'Live repair progress', text: 'See when a technician is assigned, on the way, on site and when your power is back.' },
-  { icon: 'sensor', title: 'Smart grid sensors', text: 'Meters, transformers and substations report in automatically, so faults are found before you call.' },
+  { title: 'Report in seconds', text: 'Tell the City about a power problem with your meter number and location. No queues, no call centres.' },
+  { title: 'Live repair progress', text: 'See when a technician is assigned, on the way, on site and when your power is back.' },
+  { title: 'Smart grid sensors', text: 'Meters, transformers and substations report in automatically, so faults are found before you call.' },
 ];
 
 export default function LandingPage() {
@@ -28,7 +27,6 @@ export default function LandingPage() {
 
       <main className="landing-hero">
         <div className="hero-copy">
-          <span className="badge badge-green"><Icon name="bolt" size={14} /> City of Tshwane</span>
           <h1>Power outages, <span>connected.</span></h1>
           <p className="lead">
             PowerLink joins residents, technicians and the municipality on one live platform, from the moment the lights go out until they come back on.
@@ -44,7 +42,6 @@ export default function LandingPage() {
       <section className="landing-features">
         {FEATURES.map((f) => (
           <article key={f.title} className="feature">
-            <span className="feature-icon"><Icon name={f.icon} size={22} /></span>
             <h3>{f.title}</h3>
             <p>{f.text}</p>
           </article>
