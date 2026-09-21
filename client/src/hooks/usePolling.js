@@ -8,13 +8,19 @@ export function usePolling(fetcher, intervalMs = 4000, deps = []) {
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
 
-  const load = useCallback(async () => {
+  const inFlight = useRef(false);
+
+  const load = useCallback(async (force) => {
+    // A slow response must not pile up more requests behind it (a changed filter, force === true, always loads).
+    if (inFlight.current && force !== true) return;
+    inFlight.current = true;
     try {
       setData(await fetcherRef.current());
       setError(null);
     } catch (err) {
       setError(err);
     } finally {
+      inFlight.current = false;
       setLoading(false);
     }
   }, []);
@@ -22,7 +28,7 @@ export function usePolling(fetcher, intervalMs = 4000, deps = []) {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    load();
+    load(true);
     const id = setInterval(() => {
       if (active && !document.hidden) load();
     }, intervalMs);

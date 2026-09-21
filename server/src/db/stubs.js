@@ -1,16 +1,20 @@
-// Database layer (MySQL).
+// Database layer (MySQL, with a write-through in-memory cache).
 //
-// Every function keeps the signature and return shape the services always used: async, returns plain objects.
-// Each table stores real columns for the fields we filter on plus the whole record in a JSON `data` column,
-// so nested fields (incident timelines, technician skills...) round-trip unchanged.
-// Read-modify-write updates run in a transaction with SELECT ... FOR UPDATE so concurrent requests cannot overwrite each other.
+// MySQL is the source of truth. At start-up every table is loaded into memory, and reads are answered from
+// memory (a hosted MySQL is a network hop away, and the app reads dozens of times a second). Writes change
+// memory immediately and are saved to MySQL in the background, batched per table, in order. Only records
+// whose stored values really changed are saved, so a sensor heartbeat that only refreshes the watts does no
+// database work. Photos are large, so they stay in MySQL only.
+//
+// This assumes ONE server instance owns the database, which is how the app is deployed. The signatures and the
+// return shapes (copies of the records, never live objects) are the same as they have always been.
 import { pool } from './pool.js';
 import { OPEN_STATUSES } from '../config/constants.js';
 import { nowIso } from '../utils/time.js';
 import { buildSeed } from './seed/index.js';
 
 /* ------------------------------ table definitions ------------------------------ */
-// record -> the indexed columns kept in sync with the record after every write.
+// record -> the indexed columns kept in sync with the record.
 const TABLES = {
   users: (u) => ({ role: u.role, phone: u.phone ?? null, email: u.email ? String(u.email).toLowerCase() : null }),
   nodes: (n) => ({ type: n.type, parent_id: n.parentId ?? null, area: n.area ?? null, meter_number: n.meterNumber ?? null }),
@@ -23,136 +27,162 @@ const TABLES = {
   loadshedding: () => ({}),
   suppressed: () => ({}),
 };
+const TABLE_NAMES = Object.keys(TABLES);
+// Id prefix -> table, used to keep the counters ahead of the highest stored id.
+const PREFIX_TABLE = { U: 'users', H: 'nodes', INC: 'incidents', REP: 'reports', JOB: 'jobs', NOT: 'notifications', SMS: 'sms', AUD: 'audit', LS: 'loadshedding', SUP: 'suppressed' };
 
+const mem = Object.fromEntries(TABLE_NAMES.map((t) => [t, new Map()]));
+let counters = {};
+let commands = [];
+
+const clone = (value) => (value === undefined ? value : structuredClone(value));
+const rows = async (sql, params = []) => (await pool.query(sql, params))[0];
 const parse = (row) => (typeof row.data === 'string' ? JSON.parse(row.data) : row.data);
-const rows = async (sql, params = [], conn = pool) => (await conn.query(sql, params))[0];
 
-async function nextId(prefix, start = 1001) {
-  await pool.query('INSERT IGNORE INTO counters (prefix, value) VALUES (?, ?)', [prefix, start - 1]);
-  const [result] = await pool.query('UPDATE counters SET value = LAST_INSERT_ID(value + 1) WHERE prefix = ?', [prefix]);
-  return `${prefix}-${result.insertId}`;
+// Sensors report watts, battery and a heartbeat every few seconds. Those live only in memory.
+const fingerprint = (table, record) => JSON.stringify(table === 'nodes' ? { ...record, lastHeartbeat: 0, watts: 0, battery: 0 } : record);
+
+/* ------------------------------ background saving ------------------------------ */
+const queues = {};
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function upsertRecords(table, records) {
+  const built = records.map((record) => {
+    const cols = TABLES[table](record);
+    return { names: ['id', ...Object.keys(cols), 'data'], values: [record.id, ...Object.values(cols), JSON.stringify(record)] };
+  });
+  for (let i = 0; i < built.length; i += 200) {
+    const chunk = built.slice(i, i + 200);
+    const { names } = chunk[0];
+    const marks = chunk.map(() => `(${names.map(() => '?').join(',')})`).join(',');
+    const update = names.slice(1).map((n) => `${n} = VALUES(${n})`).join(', ');
+    await pool.query(`INSERT INTO ${table} (${names.join(',')}) VALUES ${marks} ON DUPLICATE KEY UPDATE ${update}`, chunk.flatMap((b) => b.values));
+  }
 }
 
-async function transaction(fn) {
-  const conn = await pool.getConnection();
-  try {
-    await conn.beginTransaction();
-    const result = await fn(conn);
-    await conn.commit();
-    return result;
-  } catch (err) {
-    await conn.rollback().catch(() => {});
-    throw err;
-  } finally {
-    conn.release();
+const saveHandlers = {
+  ...Object.fromEntries(TABLE_NAMES.map((table) => [table, (ids) => upsertRecords(table, ids.map((id) => mem[table].get(id)).filter(Boolean))])),
+  counters: (prefixes) => (prefixes.length ? pool.query('INSERT INTO counters (prefix, value) VALUES ? ON DUPLICATE KEY UPDATE value = VALUES(value)', [prefixes.map((p) => [p, counters[p]])]) : null),
+};
+
+function queueFor(name) {
+  if (!queues[name]) queues[name] = { dirty: new Set(), running: null };
+  return queues[name];
+}
+
+function kick(name) {
+  const q = queueFor(name);
+  if (q.running || !q.dirty.size) return;
+  const ids = [...q.dirty];
+  q.dirty.clear();
+  q.running = (async () => {
+    try {
+      await saveHandlers[name](ids);
+    } catch (err) {
+      console.error(`[db] saving ${name} failed, will retry: ${err.message}`);
+      ids.forEach((id) => q.dirty.add(id));
+      await sleep(5000);
+    }
+  })().finally(() => {
+    q.running = null;
+    kick(name);
+  });
+}
+
+function markDirty(name, id) {
+  queueFor(name).dirty.add(id);
+  kick(name);
+}
+
+// Resolves once everything written so far has reached MySQL (used on shutdown and before a reset).
+export async function flush() {
+  for (;;) {
+    const pending = Object.values(queues).filter((q) => q.running || q.dirty.size);
+    if (!pending.length) return;
+    await Promise.all(pending.map((q) => q.running ?? Promise.resolve()));
+    await sleep(0);
   }
+}
+
+/* ------------------------------ ids ------------------------------ */
+function nextId(prefix, start = 1001) {
+  counters[prefix] = (counters[prefix] ?? start - 1) + 1;
+  markDirty('counters', prefix);
+  return `${prefix}-${counters[prefix]}`;
 }
 
 /* ------------------------------ generic helpers ------------------------------ */
-function rowValues(table, record) {
-  const cols = TABLES[table](record);
-  return { names: ['id', ...Object.keys(cols), 'data'], values: [record.id, ...Object.values(cols), JSON.stringify(record)] };
-}
-
-async function insertMany(table, records, conn = pool) {
-  if (!records.length) return;
-  const built = records.map((r) => rowValues(table, r));
-  const { names } = built[0];
-  for (let i = 0; i < built.length; i += 200) {
-    const chunk = built.slice(i, i + 200);
-    const marks = chunk.map(() => `(${names.map(() => '?').join(',')})`).join(',');
-    await conn.query(`INSERT INTO ${table} (${names.join(',')}) VALUES ${marks}`, chunk.flatMap((b) => b.values));
-  }
-}
-
-const insertOne = async (table, record) => {
-  await insertMany(table, [record]);
-  return record;
+const all = (table, predicate = () => true) => {
+  const out = [];
+  for (const record of mem[table].values()) if (predicate(record)) out.push(clone(record));
+  return out;
 };
+const first = (table, predicate) => {
+  for (const record of mem[table].values()) if (predicate(record)) return clone(record);
+  return null;
+};
+const byId = (table, id) => clone(mem[table].get(id) ?? null);
 
-// Loads a record, applies `mutate` to it, writes it back. Returns the updated record, or null if it does not exist.
-const patch = (table, id, mutate) =>
-  transaction(async (conn) => {
-    const found = await rows(`SELECT data FROM ${table} WHERE id = ? FOR UPDATE`, [id], conn);
-    if (!found.length) return null;
-    const record = parse(found[0]);
-    mutate(record);
-    const { names, values } = rowValues(table, record);
-    const sets = names.slice(1).map((n) => `${n} = ?`).join(', ');
-    await conn.query(`UPDATE ${table} SET ${sets} WHERE id = ?`, [...values.slice(1), id]);
-    return record;
-  });
+function insert(table, record) {
+  mem[table].set(record.id, record);
+  markDirty(table, record.id);
+  return clone(record);
+}
 
+// Applies `mutate` to the stored record and saves it only if something really changed.
+function patch(table, id, mutate) {
+  const record = mem[table].get(id);
+  if (!record) return null;
+  const before = fingerprint(table, record);
+  mutate(record);
+  if (fingerprint(table, record) !== before) markDirty(table, id);
+  return clone(record);
+}
 const assign = (changes) => (record) => Object.assign(record, changes);
 
-async function selectAll(table, where = [], params = []) {
-  const clause = where.length ? ` WHERE ${where.join(' AND ')}` : '';
-  return (await rows(`SELECT data FROM ${table}${clause} ORDER BY seq`, params)).map(parse);
-}
-
-async function selectOne(table, column, value) {
-  const found = await rows(`SELECT data FROM ${table} WHERE ${column} = ? ORDER BY seq LIMIT 1`, [value]);
-  return found.length ? parse(found[0]) : null;
-}
-
 /* ------------------------------ users ------------------------------ */
-export const findUserById = (id) => selectOne('users', 'id', id);
-export const findUserByPhone = (phone) => selectOne('users', 'phone', phone);
-export const findUserByEmail = (email) => selectOne('users', 'email', String(email).toLowerCase());
-export const listUsers = (filter = {}) => (filter.role ? selectAll('users', ['role = ?'], [filter.role]) : selectAll('users'));
-export const createUser = async (user) => insertOne('users', { ...user, id: await nextId('U'), createdAt: nowIso() });
-export const updateUser = (id, changes) => patch('users', id, assign(changes));
-export const updateTechnicianProfile = (id, changes) =>
+export const findUserById = async (id) => byId('users', id);
+export const findUserByPhone = async (phone) => first('users', (u) => u.phone === phone);
+export const findUserByEmail = async (email) => first('users', (u) => u.email?.toLowerCase() === String(email).toLowerCase());
+export const listUsers = async (filter = {}) => all('users', (u) => !filter.role || u.role === filter.role);
+export const createUser = async (user) => insert('users', { ...user, id: nextId('U'), createdAt: nowIso() });
+export const updateUser = async (id, changes) => patch('users', id, assign(changes));
+export const updateTechnicianProfile = async (id, changes) =>
   patch('users', id, (user) => {
     user.tech = { ...user.tech, ...changes };
   });
 
 /* ------------------------------ grid nodes ------------------------------ */
-export const listNodes = () => selectAll('nodes');
-export const findNodeById = (id) => selectOne('nodes', 'id', id);
-export const findNodeByMeter = (meterNumber) => selectOne('nodes', 'meter_number', meterNumber);
-export const createNode = async (node) => insertOne('nodes', { ...node, id: await nextId('H') });
-export const updateNode = (id, changes) => patch('nodes', id, assign(changes));
-// Sensor heartbeats update every node at once, so this is one SELECT and one bulk upsert.
-export const updateNodes = (updates) =>
-  transaction(async (conn) => {
-    if (!updates.length) return true;
-    const ids = [...new Set(updates.map((u) => u.id))];
-    const current = new Map((await rows('SELECT data FROM nodes WHERE id IN (?) FOR UPDATE', [ids], conn)).map((r) => [parse(r).id, parse(r)]));
-    updates.forEach(({ id, patch: changes }) => {
-      if (current.has(id)) Object.assign(current.get(id), changes);
-    });
-    const built = [...current.values()].map((n) => rowValues('nodes', n));
-    if (!built.length) return true;
-    const { names } = built[0];
-    const marks = built.map(() => `(${names.map(() => '?').join(',')})`).join(',');
-    const dup = names.slice(1).map((n) => `${n} = VALUES(${n})`).join(', ');
-    await conn.query(`INSERT INTO nodes (${names.join(',')}) VALUES ${marks} ON DUPLICATE KEY UPDATE ${dup}`, built.flatMap((b) => b.values));
-    return true;
-  });
+export const listNodes = async () => all('nodes');
+export const findNodeById = async (id) => byId('nodes', id);
+export const findNodeByMeter = async (meterNumber) => first('nodes', (n) => n.meterNumber === meterNumber);
+export const createNode = async (node) => insert('nodes', { ...node, id: nextId('H') });
+export const updateNode = async (id, changes) => patch('nodes', id, assign(changes));
+export const updateNodes = async (updates) => {
+  updates.forEach(({ id, patch: changes }) => patch('nodes', id, assign(changes)));
+  return true;
+};
 
 /* ------------------------------ incidents ------------------------------ */
-export function listIncidents(filter = {}) {
-  const where = [];
-  const params = [];
-  if (filter.open) { where.push('status IN (?)'); params.push(OPEN_STATUSES); }
-  if (filter.statuses) { where.push('status IN (?)'); params.push(filter.statuses.length ? filter.statuses : ['']); }
-  if (filter.technicianId) { where.push('technician_id = ?'); params.push(filter.technicianId); }
-  if (filter.nodeId) { where.push('node_id = ?'); params.push(filter.nodeId); }
-  if (filter.area) { where.push('area = ?'); params.push(filter.area); }
-  if (!filter.includeMerged) where.push("status <> 'merged'");
-  return selectAll('incidents', where, params);
-}
-export const findIncidentById = (id) => selectOne('incidents', 'id', id);
-export const createIncident = async (incident) => insertOne('incidents', { ...incident, id: await nextId('INC') });
-export const updateIncident = (id, changes) => patch('incidents', id, assign(changes));
+export const listIncidents = async (filter = {}) =>
+  all('incidents', (i) => {
+    if (filter.open && !OPEN_STATUSES.includes(i.status)) return false;
+    if (filter.statuses && !filter.statuses.includes(i.status)) return false;
+    if (filter.technicianId && i.technicianId !== filter.technicianId) return false;
+    if (filter.nodeId && i.nodeId !== filter.nodeId) return false;
+    if (filter.area && i.area !== filter.area) return false;
+    return i.status !== 'merged' || Boolean(filter.includeMerged);
+  });
+export const findIncidentById = async (id) => byId('incidents', id);
+export const createIncident = async (incident) => insert('incidents', { ...incident, id: nextId('INC') });
+export const updateIncident = async (id, changes) => patch('incidents', id, assign(changes));
 // Adds a timeline entry and applies field changes in one step.
-export const recordIncidentEvent = (id, event, changes = {}) =>
+export const recordIncidentEvent = async (id, event, changes = {}) =>
   patch('incidents', id, (incident) => {
     Object.assign(incident, changes);
     incident.timeline.push({ ts: nowIso(), actor: 'system', ...event });
   });
-export const attachReportToIncident = (incidentId, reportId, userId) =>
+export const attachReportToIncident = async (incidentId, reportId, userId) =>
   patch('incidents', incidentId, (incident) => {
     if (!incident.reportIds.includes(reportId)) incident.reportIds.push(reportId);
     if (!incident.reporterIds.includes(userId)) incident.reporterIds.push(userId);
@@ -160,80 +190,62 @@ export const attachReportToIncident = (incidentId, reportId, userId) =>
   });
 
 /* ------------------------------ reports ------------------------------ */
-export const createReport = async (report) => insertOne('reports', { ...report, id: await nextId('REP'), createdAt: nowIso() });
-export const findReportById = (id) => selectOne('reports', 'id', id);
-export function listReports(filter = {}) {
-  const where = [];
-  const params = [];
-  if (filter.incidentId) { where.push('incident_id = ?'); params.push(filter.incidentId); }
-  if (filter.userId) { where.push('user_id = ?'); params.push(filter.userId); }
-  return selectAll('reports', where, params);
-}
-export const updateReport = (id, changes) => patch('reports', id, assign(changes));
+export const createReport = async (report) => insert('reports', { ...report, id: nextId('REP'), createdAt: nowIso() });
+export const findReportById = async (id) => byId('reports', id);
+export const listReports = async (filter = {}) => all('reports', (r) => (!filter.incidentId || r.incidentId === filter.incidentId) && (!filter.userId || r.userId === filter.userId));
+export const updateReport = async (id, changes) => patch('reports', id, assign(changes));
 
 /* ------------------------------ jobs ------------------------------ */
-export const createJob = async (job) => insertOne('jobs', { ...job, id: await nextId('JOB'), createdAt: nowIso() });
-export const findJobById = (id) => selectOne('jobs', 'id', id);
-export function listJobs(filter = {}) {
-  const where = [];
-  const params = [];
-  if (filter.technicianId) { where.push('technician_id = ?'); params.push(filter.technicianId); }
-  if (filter.incidentId) { where.push('incident_id = ?'); params.push(filter.incidentId); }
-  if (filter.states) { where.push('state IN (?)'); params.push(filter.states.length ? filter.states : ['']); }
-  return selectAll('jobs', where, params);
-}
-export const updateJob = (id, changes) => patch('jobs', id, assign(changes));
+export const createJob = async (job) => insert('jobs', { ...job, id: nextId('JOB'), createdAt: nowIso() });
+export const findJobById = async (id) => byId('jobs', id);
+export const listJobs = async (filter = {}) =>
+  all('jobs', (j) => (!filter.technicianId || j.technicianId === filter.technicianId) && (!filter.incidentId || j.incidentId === filter.incidentId) && (!filter.states || filter.states.includes(j.state)));
+export const updateJob = async (id, changes) => patch('jobs', id, assign(changes));
 
 /* ------------------------------ notifications and sms ------------------------------ */
-export const createNotification = async (notification) => insertOne('notifications', { ...notification, id: await nextId('NOT'), read: false, createdAt: nowIso() });
-export function listNotifications(filter = {}) {
-  const where = [];
-  const params = [];
-  if (filter.userId) { where.push('user_id = ?'); params.push(filter.userId); }
-  if (filter.incidentId) { where.push('incident_id = ?'); params.push(filter.incidentId); }
-  return selectAll('notifications', where, params);
-}
-export const markNotificationRead = (id) => patch('notifications', id, assign({ read: true }));
-export async function markAllNotificationsRead(userId) {
-  const unread = await rows('SELECT id FROM notifications WHERE user_id = ? AND is_read = 0', [userId]);
-  await Promise.all(unread.map((r) => markNotificationRead(r.id)));
+export const createNotification = async (notification) => insert('notifications', { ...notification, id: nextId('NOT'), read: false, createdAt: nowIso() });
+export const listNotifications = async (filter = {}) => all('notifications', (n) => (!filter.userId || n.userId === filter.userId) && (!filter.incidentId || n.incidentId === filter.incidentId));
+export const markNotificationRead = async (id) => patch('notifications', id, assign({ read: true }));
+export const markAllNotificationsRead = async (userId) => {
+  for (const n of mem.notifications.values()) if (n.userId === userId) patch('notifications', n.id, assign({ read: true }));
   return true;
-}
-export const createSms = async (sms) => insertOne('sms', { ...sms, id: await nextId('SMS'), createdAt: nowIso() });
-export const listSms = () => selectAll('sms');
+};
+export const createSms = async (sms) => insert('sms', { ...sms, id: nextId('SMS'), createdAt: nowIso() });
+export const listSms = async () => all('sms');
 
 /* ------------------------------ audit log ------------------------------ */
-export const appendAudit = async (entry) => insertOne('audit', { reason: null, ...entry, id: await nextId('AUD'), ts: nowIso() });
-export const listAudit = () => selectAll('audit');
+export const appendAudit = async (entry) => insert('audit', { reason: null, ...entry, id: nextId('AUD'), ts: nowIso() });
+export const listAudit = async () => all('audit');
 
 /* ------------------------------ loadshedding ------------------------------ */
-export const listLoadshedding = () => selectAll('loadshedding');
+export const listLoadshedding = async () => all('loadshedding');
 export async function addLoadshedding(windows, { replace = false } = {}) {
-  if (replace) await pool.query('DELETE FROM loadshedding');
-  const added = [];
-  for (const w of windows) added.push({ ...w, id: await nextId('LS') });
-  await insertMany('loadshedding', added);
-  return added;
+  if (replace) {
+    await flush();
+    mem.loadshedding = new Map();
+    await pool.query('DELETE FROM loadshedding');
+  }
+  return windows.map((w) => insert('loadshedding', { ...w, id: nextId('LS') }));
 }
-export const addSuppressed = async (entry) => insertOne('suppressed', { ...entry, id: await nextId('SUP'), ts: nowIso() });
-export const listSuppressed = () => selectAll('suppressed');
+export const addSuppressed = async (entry) => insert('suppressed', { ...entry, id: nextId('SUP'), ts: nowIso() });
+export const listSuppressed = async () => all('suppressed');
 
 /* ------------------------------ simulator commands ------------------------------ */
 // The backend asks the simulator to change the "physical" world, e.g. restore power after a repair.
-export async function pushCommand(command) {
-  await pool.query('INSERT INTO commands (data) VALUES (?)', [JSON.stringify({ ...command, ts: nowIso() })]);
+// The queue is short-lived, so it is kept in memory only.
+export const pushCommand = async (command) => {
+  commands.push({ ...command, ts: nowIso() });
   return true;
-}
-export const popCommands = () =>
-  transaction(async (conn) => {
-    const found = await rows('SELECT data FROM commands ORDER BY seq FOR UPDATE', [], conn);
-    if (found.length) await conn.query('DELETE FROM commands');
-    return found.map(parse);
-  });
+};
+export const popCommands = async () => {
+  const taken = commands;
+  commands = [];
+  return taken;
+};
 
-/* ------------------------------ photos ------------------------------ */
+/* ------------------------------ photos (MySQL only) ------------------------------ */
 export async function savePhoto(dataUrl) {
-  const id = await nextId('PH');
+  const id = nextId('PH');
   await pool.query('INSERT INTO photos (id, data) VALUES (?, ?)', [id, dataUrl]);
   return id;
 }
@@ -242,31 +254,49 @@ export async function getPhoto(id) {
   return found.length ? found[0].data : null;
 }
 
-/* ------------------------------ seed and reset ------------------------------ */
-const ALL_TABLES = [...Object.keys(TABLES), 'commands', 'photos', 'counters'];
+/* ------------------------------ start-up, seed and reset ------------------------------ */
+const suffix = (id) => Number(String(id).split('-').pop()) || 0;
+
+async function loadFromDatabase() {
+  for (const table of TABLE_NAMES) {
+    mem[table] = new Map((await rows(`SELECT data FROM ${table} ORDER BY seq`)).map((r) => [parse(r).id, parse(r)]));
+  }
+  counters = Object.fromEntries((await rows('SELECT prefix, value FROM counters')).map((r) => [r.prefix, r.value]));
+  // Background saves may not have reached MySQL before a crash: never hand out an id that is already in use.
+  Object.entries(PREFIX_TABLE).forEach(([prefix, table]) => {
+    const highest = Math.max(0, ...[...mem[table].keys()].map(suffix));
+    if (highest > (counters[prefix] ?? 0)) counters[prefix] = highest;
+  });
+  const photoIds = await rows('SELECT id FROM photos');
+  const highestPhoto = Math.max(0, ...photoIds.map((r) => suffix(r.id)));
+  if (highestPhoto > (counters.PH ?? 0)) counters.PH = highestPhoto;
+}
 
 async function loadSeed() {
   const seed = buildSeed();
-  await transaction(async (conn) => {
-    for (const table of Object.keys(TABLES)) await insertMany(table, seed[table] ?? [], conn);
-    const counters = Object.entries(seed.counters);
-    if (counters.length) await conn.query('INSERT INTO counters (prefix, value) VALUES ?', [counters]);
+  TABLE_NAMES.forEach((table) => {
+    mem[table] = new Map((seed[table] ?? []).map((r) => [r.id, r]));
   });
+  counters = { ...seed.counters };
+  commands = [];
+  for (const table of TABLE_NAMES) await upsertRecords(table, [...mem[table].values()]);
+  await saveHandlers.counters(Object.keys(counters));
 }
 
-// Puts every table back to the seeded demo state (the "Reset demo data" button).
-export async function resetDatabase() {
-  for (const table of ALL_TABLES) await pool.query(`TRUNCATE TABLE ${table}`);
-  await loadSeed();
-  return true;
-}
-
-// Called once at startup, after the schema exists: loads the demo data into an empty database.
-export async function seedIfEmpty() {
-  const [{ total }] = await rows('SELECT COUNT(*) AS total FROM users');
-  if (Number(total) === 0) {
+// Called once at startup, after the schema exists: loads MySQL into memory, seeding demo data if it is empty.
+export async function loadDatabase() {
+  await loadFromDatabase();
+  if (mem.users.size === 0) {
     await loadSeed();
     return true;
   }
   return false;
+}
+
+// Puts every table back to the seeded demo state (the "Reset demo data" button).
+export async function resetDatabase() {
+  await flush();
+  for (const table of [...TABLE_NAMES, 'photos', 'counters']) await pool.query(`TRUNCATE TABLE ${table}`);
+  await loadSeed();
+  return true;
 }

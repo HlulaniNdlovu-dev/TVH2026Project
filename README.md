@@ -134,7 +134,9 @@ to override. Rewrite rule: `/*` to `/index.html` (the `_redirects` file covers t
 
 ## Prototype limits (by design)
 
-- Data is stored in MySQL (tables in `server/src/db/schema.sql`, created automatically).
+- Data is stored in MySQL (tables in `server/src/db/schema.sql`, created automatically). The server loads the tables into memory at
+  start and serves reads from there; writes are saved to MySQL in the background (and flushed on shutdown). This needs exactly ONE
+  backend instance. Photos are read from MySQL on demand.
 - No real authentication: the browser stores the user in `localStorage` and sends the id in a header. Passwords are
   stored as plain text. Do not use with real data.
 - SMS and push are simulated (in-app notifications and an SMS inbox on the Notifications page).

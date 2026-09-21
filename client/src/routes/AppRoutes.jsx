@@ -1,4 +1,6 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import Spinner from '../components/Spinner.jsx';
 import ProtectedRoute from '../features/auth/ProtectedRoute.jsx';
 import CitizenLayout from '../components/layouts/CitizenLayout.jsx';
 import TechnicianLayout from '../components/layouts/TechnicianLayout.jsx';
@@ -9,30 +11,31 @@ import LoginPage from '../pages/onboarding/LoginPage.jsx';
 import RegisterPage from '../pages/onboarding/RegisterPage.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 
-import CitizenDashboardPage from '../pages/citizen/CitizenDashboardPage.jsx';
-import ReportOutagePage from '../pages/citizen/ReportOutagePage.jsx';
-import IncidentTrackerPage from '../pages/citizen/IncidentTrackerPage.jsx';
-import NotificationsPage from '../pages/citizen/NotificationsPage.jsx';
-import ProfilePage from '../pages/citizen/ProfilePage.jsx';
+const CitizenDashboardPage = lazy(() => import('../pages/citizen/CitizenDashboardPage.jsx'));
+const ReportOutagePage = lazy(() => import('../pages/citizen/ReportOutagePage.jsx'));
+const IncidentTrackerPage = lazy(() => import('../pages/citizen/IncidentTrackerPage.jsx'));
+const NotificationsPage = lazy(() => import('../pages/citizen/NotificationsPage.jsx'));
+const ProfilePage = lazy(() => import('../pages/citizen/ProfilePage.jsx'));
 
-import TechnicianDashboardPage from '../pages/technician/TechnicianDashboardPage.jsx';
-import TaskDetailPage from '../pages/technician/TaskDetailPage.jsx';
-import CloseTaskPage from '../pages/technician/CloseTaskPage.jsx';
-import TaskHistoryPage from '../pages/technician/TaskHistoryPage.jsx';
+const TechnicianDashboardPage = lazy(() => import('../pages/technician/TechnicianDashboardPage.jsx'));
+const TaskDetailPage = lazy(() => import('../pages/technician/TaskDetailPage.jsx'));
+const CloseTaskPage = lazy(() => import('../pages/technician/CloseTaskPage.jsx'));
+const TaskHistoryPage = lazy(() => import('../pages/technician/TaskHistoryPage.jsx'));
 
-import AdminDashboardPage from '../pages/admin/AdminDashboardPage.jsx';
-import LiveGridPage from '../pages/admin/LiveGridPage.jsx';
-import IncidentsPage from '../pages/admin/IncidentsPage.jsx';
-import IncidentDetailPage from '../pages/admin/IncidentDetailPage.jsx';
-import DispatchBoardPage from '../pages/admin/DispatchBoardPage.jsx';
-import TechnicianOversightPage from '../pages/admin/TechnicianOversightPage.jsx';
-import LoadsheddingPage from '../pages/admin/LoadsheddingPage.jsx';
-import SensorsPage from '../pages/admin/SensorsPage.jsx';
-import AnalyticsPage from '../pages/admin/AnalyticsPage.jsx';
-import AuditLogPage from '../pages/admin/AuditLogPage.jsx';
+const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage.jsx'));
+const LiveGridPage = lazy(() => import('../pages/admin/LiveGridPage.jsx'));
+const IncidentsPage = lazy(() => import('../pages/admin/IncidentsPage.jsx'));
+const IncidentDetailPage = lazy(() => import('../pages/admin/IncidentDetailPage.jsx'));
+const DispatchBoardPage = lazy(() => import('../pages/admin/DispatchBoardPage.jsx'));
+const TechnicianOversightPage = lazy(() => import('../pages/admin/TechnicianOversightPage.jsx'));
+const LoadsheddingPage = lazy(() => import('../pages/admin/LoadsheddingPage.jsx'));
+const SensorsPage = lazy(() => import('../pages/admin/SensorsPage.jsx'));
+const AnalyticsPage = lazy(() => import('../pages/admin/AnalyticsPage.jsx'));
+const AuditLogPage = lazy(() => import('../pages/admin/AuditLogPage.jsx'));
 
 export default function AppRoutes() {
   return (
+    <Suspense fallback={<Spinner />}>
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -77,5 +80,6 @@ export default function AppRoutes() {
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </Suspense>
   );
 }

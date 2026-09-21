@@ -102,7 +102,7 @@ export function tick() {
 }
 
 let timer = null;
-export function startScheduler(intervalMs = 1500) {
+export function startScheduler(intervalMs = 2000) {
   if (timer) return;
   timer = setInterval(() => {
     tick().catch((err) => console.error('[grid tick failed]', err));
