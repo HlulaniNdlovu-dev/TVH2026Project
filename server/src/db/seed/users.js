@@ -27,6 +27,7 @@ export function buildUsers(nodes) {
     citizen('U-1003', 'Lerato Khumalo', '0841234567', 'lerato@example.com', ['H-MAM-1-4'], nodes),
     citizen('U-1004', 'Johan Botha', '0851234567', 'johan@example.com', ['H-EER-1-1'], nodes),
     citizen('U-1005', 'Zanele Ngcobo', '0861234567', 'zanele@example.com', ['H-NEL-1-2'], nodes, { medical: true }),
+    citizen('U-1006', 'Lucy Zwane', '0000000002', 'lucy.zwane@example.com', ['H-MAM-1-5'], nodes, { password: 'test1234!' }),
   ];
 
   const tech = (id, employeeId, name, phone, dutyStatus, lat, lng, skills) => ({

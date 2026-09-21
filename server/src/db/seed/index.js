@@ -31,6 +31,6 @@ export function buildSeed() {
     ],
     commands: [],
     photos: {},
-    counters: { ...history.counters, U: 1005, T: 104, REP: 1000, NOT: 1000, SMS: 1000, AUD: 1001, LS: 2000, H: 900, PH: 1000 },
+    counters: { ...history.counters, U: 1006, T: 104, REP: 1000, NOT: 1000, SMS: 1000, AUD: 1001, LS: 2000, H: 900, PH: 1000 },
   };
 }
