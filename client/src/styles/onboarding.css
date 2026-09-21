@@ -50,5 +50,5 @@
 .demo-accounts summary { cursor: pointer; font-weight: 600; color: var(--green-700); }
 .address-picker { margin-top: 6px; }
 
-.back-link { display: inline-block; margin-bottom: 14px; font-weight: 600; font-size: .92rem; color: var(--ink-2); }
+.back-link { display: block; width: fit-content; margin-bottom: 14px; font-weight: 600; font-size: .92rem; color: var(--ink-2); }
 .back-link:hover { color: var(--green-700); }
