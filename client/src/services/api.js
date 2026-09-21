@@ -1,8 +1,15 @@
 // The only place that talks to the network. Every other service goes through request().
 import { clearStoredUser, getStoredUser } from '../utils/storage.js';
 
-// On the same machine or Wi-Fi the API is on port 4000. When hosted, set VITE_API_URL.
-export const API_BASE = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:4000/api`;
+// Where the API lives:
+//  - VITE_API_URL, when set, always wins.
+//  - Running locally (localhost, 127.0.0.1 or a Wi-Fi address such as 192.168.x.x): the API on port 4000 of that same host.
+//  - Anywhere else (the Render site): the hosted backend.
+const HOSTED_API = 'https://tvh2026project-backend.onrender.com/api';
+const { protocol, hostname } = window.location;
+const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.local') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+
+export const API_BASE = (import.meta.env.VITE_API_URL || (isLocalHost ? `${protocol}//${hostname}:4000/api` : HOSTED_API)).replace(/\/$/, '');
 
 export class ApiError extends Error {
   constructor(message, status) {
