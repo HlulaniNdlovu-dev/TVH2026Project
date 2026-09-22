@@ -13,7 +13,7 @@ export default function CloseTaskPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
-  const { data: job, loading } = usePolling(() => jobService.getJob(jobId), 5000, [jobId]);
+  const { data: job, loading } = usePolling(() => jobService.getJob(jobId), 5000, [jobId], `technician:task:${jobId}`);
 
   const [workDone, setWorkDone] = useState(false);
   const [partsUsed, setPartsUsed] = useState('');

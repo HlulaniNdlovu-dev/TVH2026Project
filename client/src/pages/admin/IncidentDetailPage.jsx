@@ -15,8 +15,8 @@ import { formatDateTime, formatDistance, formatDuration } from '../../utils/form
 export default function IncidentDetailPage() {
   const { incidentId } = useParams();
   const toast = useToast();
-  const { data: incident, error, loading, refresh } = usePolling(() => adminService.getIncident(incidentId), 3000, [incidentId]);
-  const board = usePolling(adminService.getDispatchBoard, 6000);
+  const { data: incident, error, loading, refresh } = usePolling(() => adminService.getIncident(incidentId), 3000, [incidentId], `admin:incident:${incidentId}`);
+  const board = usePolling(adminService.getDispatchBoard, 6000, [], 'admin:dispatch');
   const [assigning, setAssigning] = useState(false);
 
   if (loading && !incident) return <Spinner />;

@@ -37,7 +37,7 @@ function HBar({ data, color = CHART_COLORS[0], width, height }) {
 }
 
 export default function AnalyticsPage() {
-  const { data, error, loading } = usePolling(adminService.getAnalytics, 10000);
+  const { data, error, loading } = usePolling(adminService.getAnalytics, 10000, [], 'admin:analytics');
   if (loading && !data) return <Spinner label="Crunching the numbers..." />;
   if (!data) return <Banner tone="error">{error?.message}</Banner>;
   const k = data.kpis;

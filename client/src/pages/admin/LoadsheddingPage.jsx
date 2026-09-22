@@ -23,7 +23,7 @@ function downloadSample() {
 
 export default function LoadsheddingPage() {
   const toast = useToast();
-  const { data, loading, refresh } = usePolling(adminService.getLoadshedding, 5000);
+  const { data, loading, refresh } = usePolling(adminService.getLoadshedding, 5000, [], 'admin:loadshedding');
   const [csv, setCsv] = useState('');
   const [fileName, setFileName] = useState('');
   const [replace, setReplace] = useState(false);

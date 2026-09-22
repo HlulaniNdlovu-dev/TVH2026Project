@@ -44,7 +44,7 @@ function ReportResult({ result, onAnother }) {
 
 export default function ReportOutagePage() {
   const meta = useMeta();
-  const { data: meters, loading } = usePolling(getMeters, 6000);
+  const { data: meters, loading } = usePolling(getMeters, 6000, [], 'citizen:meters');
   const geo = useGeolocation();
 
   const [category, setCategory] = useState('');

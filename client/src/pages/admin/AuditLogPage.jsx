@@ -17,7 +17,7 @@ const ACTION_LABELS = {
 };
 
 export default function AuditLogPage() {
-  const { data, error, loading } = usePolling(adminService.getAuditLog, 5000);
+  const { data, error, loading } = usePolling(adminService.getAuditLog, 5000, [], 'admin:audit');
   if (loading && !data) return <Spinner />;
   if (!data) return <Banner tone="error">{error?.message}</Banner>;
 

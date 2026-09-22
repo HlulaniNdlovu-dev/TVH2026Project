@@ -17,7 +17,7 @@ const FILTERS = [
 const TYPE_LABEL = { substation: 'Substation', transformer: 'Transformer', house: 'Meter' };
 
 export default function SensorsPage() {
-  const { data, error, loading } = usePolling(adminService.getSensors, 3000);
+  const { data, error, loading } = usePolling(adminService.getSensors, 3000, [], 'admin:sensors');
   const [filter, setFilter] = useState('all');
   const [query, setQuery] = useState('');
   if (loading && !data) return <Spinner />;

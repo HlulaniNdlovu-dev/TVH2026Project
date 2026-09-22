@@ -10,7 +10,7 @@ import { timeAgo } from '../../utils/format.js';
 const TONE = { Idle: 'green', 'Job offered': 'blue', 'En route': 'amber', 'On site': 'green', Working: 'green', Paused: 'amber', Unavailable: 'grey' };
 
 export default function TechnicianOversightPage() {
-  const { data, error, loading } = usePolling(adminService.getTechnicians, 2500);
+  const { data, error, loading } = usePolling(adminService.getTechnicians, 2500, [], 'admin:technicians');
   if (loading && !data) return <Spinner />;
   if (!data) return <Banner tone="error">{error?.message}</Banner>;
 

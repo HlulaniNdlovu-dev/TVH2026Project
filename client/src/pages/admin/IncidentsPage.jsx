@@ -15,7 +15,7 @@ const FILTERS = [
 
 export default function IncidentsPage() {
   const [filter, setFilter] = useState('open');
-  const { data, error, loading } = usePolling(() => adminService.getIncidents(filter), 4000, [filter]);
+  const { data, error, loading } = usePolling(() => adminService.getIncidents(filter), 4000, [filter], `admin:incidents:${JSON.stringify(filter)}`);
 
   return (
     <>

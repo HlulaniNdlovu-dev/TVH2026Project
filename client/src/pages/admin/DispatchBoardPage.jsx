@@ -14,7 +14,7 @@ const ACTIVITY_TONE = { Idle: 'green', 'Job offered': 'blue', 'En route': 'amber
 
 export default function DispatchBoardPage() {
   const toast = useToast();
-  const { data, error, loading, refresh } = usePolling(adminService.getDispatchBoard, 3000);
+  const { data, error, loading, refresh } = usePolling(adminService.getDispatchBoard, 3000, [], 'admin:dispatch');
   const [assigning, setAssigning] = useState(null);
   if (loading && !data) return <Spinner />;
   if (!data) return <Banner tone="error">{error?.message}</Banner>;

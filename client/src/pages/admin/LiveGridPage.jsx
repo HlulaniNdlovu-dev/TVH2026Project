@@ -9,7 +9,7 @@ import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 
 export default function LiveGridPage() {
-  const { data, error, loading } = usePolling(adminService.getGrid, 2500);
+  const { data, error, loading } = usePolling(adminService.getGrid, 2500, [], 'admin:grid');
   const [focus, setFocus] = useState('all');
   if (loading && !data) return <Spinner label="Loading the grid..." />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load the grid.'}</Banner>;

@@ -17,7 +17,7 @@ import { googleMapsDirections } from '../../utils/geo.js';
 export default function TaskDetailPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const { data: job, error, loading, refresh } = usePolling(() => jobService.getJob(jobId), 3000, [jobId]);
+  const { data: job, error, loading, refresh } = usePolling(() => jobService.getJob(jobId), 3000, [jobId], `technician:task:${jobId}`);
   const actions = useJobActions(jobId, refresh);
   const [declining, setDeclining] = useState(false);
   const [pausing, setPausing] = useState(false);

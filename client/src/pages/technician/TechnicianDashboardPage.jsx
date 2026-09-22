@@ -40,7 +40,7 @@ function StandingBy({ duty, lastJob, onGoAvailable }) {
 
 export default function TechnicianDashboardPage() {
   const toast = useToast();
-  const { data, error, loading, refresh, setData } = usePolling(jobService.getMyJobs, 3000);
+  const { data, error, loading, refresh, setData } = usePolling(jobService.getMyJobs, 3000, [], 'technician:jobs');
   const [declining, setDeclining] = useState(null);
   const current = data?.current;
   const actions = useJobActions(current?.id, refresh);

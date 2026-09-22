@@ -9,7 +9,7 @@ import Spinner from '../../components/Spinner.jsx';
 import { formatDuration, formatTime, timeAgo } from '../../utils/format.js';
 
 export default function AdminDashboardPage() {
-  const { data, error, loading } = usePolling(adminService.getOverview, 3000);
+  const { data, error, loading } = usePolling(adminService.getOverview, 3000, [], 'admin:overview');
   if (loading && !data) return <Spinner label="Loading the grid..." />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load the dashboard.'}</Banner>;
   const k = data.kpis;

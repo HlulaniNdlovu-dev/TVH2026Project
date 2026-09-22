@@ -34,7 +34,7 @@ function HistoryJob({ job }) {
 }
 
 export default function TaskHistoryPage() {
-  const { data, error, loading } = usePolling(jobService.getMyJobs, 8000);
+  const { data, error, loading } = usePolling(jobService.getMyJobs, 8000, [], 'technician:history');
   if (loading && !data) return <Spinner />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load your history.'}</Banner>;
 

@@ -45,7 +45,7 @@ function HistoryItem({ incident }) {
 }
 
 export default function IncidentTrackerPage() {
-  const { data, error, loading } = usePolling(getIncidents, 4000);
+  const { data, error, loading } = usePolling(getIncidents, 4000, [], 'citizen:incidents');
   if (loading && !data) return <Spinner label="Loading your incidents..." />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load your incidents.'}</Banner>;
 

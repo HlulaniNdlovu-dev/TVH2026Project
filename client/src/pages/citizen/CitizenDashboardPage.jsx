@@ -26,10 +26,12 @@ function NextSlot({ slot }) {
 
 export default function CitizenDashboardPage() {
   const { user } = useAuth();
-  const { data, error, loading } = usePolling(getDashboard, 4000);
+  const { data, error, loading } = usePolling(getDashboard, 4000, [], 'citizen:dashboard');
 
   if (loading && !data) return <Spinner label="Loading your dashboard..." />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load your dashboard.'}</Banner>;
+  // A meter with no power but not yet an incident: sensor confirmation and grouping take a little time.
+  const meterInTrouble = data.meters.some((m) => m.state === 'OFF' && m.offReason !== 'loadshedding');
 
   return (
     <div className="stack">
@@ -41,6 +43,14 @@ export default function CitizenDashboardPage() {
 
       {data.incident ? (
         <CitizenIncidentCard incident={data.incident} />
+      ) : meterInTrouble ? (
+        <div className="card card-flat no-incident incident-checking">
+          <span className="spinner spinner-sm" aria-hidden="true" />
+          <div className="grow">
+            <h3 style={{ margin: 0 }}>Checking your power...</h3>
+            <p className="muted" style={{ margin: 0 }}>One of your meters shows no power. Wait while we figure out what's wrong.</p>
+          </div>
+        </div>
       ) : (
         <div className="card card-flat no-incident">
           <span className="feature-icon"><Icon name="check" size={22} /></span>
