@@ -6,7 +6,7 @@ export const config = {
   port: num(process.env.PORT, 4000),
   // Extra browser origins allowed to call the API (comma separated). localhost and the hosted frontend are always allowed.
   corsOrigins: (process.env.CORS_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
-  frontendUrl: process.env.FRONTEND_URL || 'https://tvh2026project.onrender.com',
+  frontendUrl: process.env.FRONTEND_URL || 'https://tvh2026project-client.onrender.com',
   // Shared secret the simulator sends with every telemetry call.
   deviceKey: process.env.DEVICE_KEY || 'powerlink-sim-key',
   // A sensor must stay OFF this long before it becomes an incident (filters flickers).

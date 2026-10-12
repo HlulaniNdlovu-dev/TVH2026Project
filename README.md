@@ -118,19 +118,26 @@ Log in as a citizen on a phone, a technician on another window and the admin on 
 | Piece | Render type | URL |
 | --- | --- | --- |
 | MySQL | external (Render has no MySQL) e.g. Aiven, TiDB Cloud, Railway | connection string |
-| `server/` | **Web Service** | https://tvh2026project-backend.onrender.com |
-| `client/` | **Static Site** | https://tvh2026project.onrender.com |
-| `simulator/` | **Web Service** (Node, always running) | your choice |
+| `server/` | **Web Service** | https://tvh2026project-server.onrender.com |
+| `client/` | **Static Site** | https://tvh2026project-client.onrender.com |
+| `simulator/` | **Web Service** (Node, always running) | https://tvh2026project-simulator.onrender.com |
 
-**Backend** (Root Directory `server`, Build `npm install`, Start `npm start`). Environment: `DATABASE_URL`, `DB_SSL=true` (if the
-host needs TLS), `DEVICE_KEY` (any secret). Health check path: `/health`.
+Deploy from the `dev` branch. Never put the database password in the repository: it only belongs in the Render Environment tab.
+
+**Backend** (Root Directory `server`, Build `npm install`, Start `npm start`, one instance only). Environment: `DATABASE_URL`
+(`mysql://USER:PASSWORD@HOST:PORT/DBNAME`, without a `?ssl-mode=...` suffix), `DB_SSL=true`, `DB_SSL_REJECT_UNAUTHORIZED=false`
+(Aiven uses its own certificate authority), `DEVICE_KEY` (any secret). Health check path: `/health`. The allowed frontend
+defaults to `https://tvh2026project-client.onrender.com`; set `FRONTEND_URL` if the site lives elsewhere.
 
 **Frontend** (Root Directory `client`, Build `npm install && npm run build`, Publish Directory `dist`). No variables needed: on
-`localhost` or a Wi-Fi address it uses port 4000 of that machine, anywhere else it uses the hosted backend. Set `VITE_API_URL`
-to override. Rewrite rule: `/*` to `/index.html` (the `_redirects` file covers this).
+`localhost` or a Wi-Fi address it uses port 4000 of that machine, anywhere else it uses
+`https://tvh2026project-server.onrender.com/api`. Set `VITE_API_URL` to override (it is read at build time, so redeploy after
+changing it). Render does not read the `_redirects` file, so add the rewrite rule in the dashboard under Redirects/Rewrites:
+source `/*`, destination `/index.html`, action Rewrite.
 
 **Simulator** (Root Directory `simulator`, Build `npm install`, Start `npm start`). Environment:
-`API_URL=https://tvh2026project-backend.onrender.com/api`, `DEVICE_KEY` (same as the backend).
+`API_URL=https://tvh2026project-server.onrender.com/api`, `DEVICE_KEY` (same as the backend). The control panel has no login,
+so do not share its URL.
 
 ## Prototype limits (by design)
 

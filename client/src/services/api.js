@@ -5,7 +5,7 @@ import { clearStoredUser, getStoredUser } from '../utils/storage.js';
 //  - VITE_API_URL, when set, always wins.
 //  - Running locally (localhost, 127.0.0.1 or a Wi-Fi address such as 192.168.x.x): the API on port 4000 of that same host.
 //  - Anywhere else (the Render site): the hosted backend.
-const HOSTED_API = 'https://tvh2026project-backend.onrender.com/api';
+const HOSTED_API = 'https://tvh2026project-server.onrender.com/api';
 const { protocol, hostname } = window.location;
 const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.local') || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
 
