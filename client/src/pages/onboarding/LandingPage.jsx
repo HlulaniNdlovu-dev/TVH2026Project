@@ -66,15 +66,15 @@ export default function LandingPage() {
             <Link to="/register" className="btn btn-lg lp-btn-outline-light">Register your meter</Link>
           </div>
         </div>
-      </section>
 
-      <section className="lp-highlights" aria-label="Platform highlights">
-        {HIGHLIGHTS.map((h) => (
-          <div key={h.label} className="lp-highlight">
-            <strong>{h.value}</strong>
-            <span>{h.label}</span>
-          </div>
-        ))}
+        <div className="lp-highlights" aria-label="Platform highlights">
+          {HIGHLIGHTS.map((h) => (
+            <div key={h.label} className="lp-highlight">
+              <strong>{h.value}</strong>
+              <span>{h.label}</span>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section id="platform" className="lp-section">
