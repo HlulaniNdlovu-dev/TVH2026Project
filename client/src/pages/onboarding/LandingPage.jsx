@@ -1,9 +1,20 @@
+import { Fragment } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import Logo from '../../components/Logo.jsx';
 import Icon from '../../components/Icon.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
 import { homeForRole } from '../../features/auth/AuthContext.jsx';
 import heroImage from '../../assets/hero-grid.jpg';
+import { useReveal } from '../../hooks/useReveal.js';
+
+// Splits a phrase into words that rise in one after another, starting at `start`.
+function Words({ text, start = 0, step = 0.07 }) {
+  return text.split(' ').map((word, i) => (
+    <Fragment key={i}>
+      <span className="lp-word" style={{ '--d': `${start + i * step}s` }}>{word}</span>{' '}
+    </Fragment>
+  ));
+}
 
 const HIGHLIGHTS = [
   { value: '24/7', label: 'Live grid monitoring' },
@@ -36,11 +47,13 @@ const STEPS = [
 
 export default function LandingPage() {
   const { user } = useAuth();
+  const revealRef = useReveal();
   if (user) return <Navigate to={homeForRole(user.role)} replace />;
 
   return (
-    <div className="landing">
-      <section className="lp-hero" style={{ backgroundImage: `url(${heroImage})` }}>
+    <div className="landing" ref={revealRef}>
+      <section className="lp-hero">
+        <div className="lp-hero-bg" style={{ backgroundImage: `url(${heroImage})` }} aria-hidden="true" />
         <div className="lp-hero-overlay" aria-hidden="true" />
         <header className="lp-nav">
           <Logo size={36} light />
@@ -56,20 +69,25 @@ export default function LandingPage() {
         </header>
 
         <div className="lp-hero-inner">
-          <span className="lp-eyebrow">City of Tshwane · Smart Outage Management</span>
-          <h1>Keeping the city powered, <span>together.</span></h1>
-          <p className="lp-lead">
+          <span className="lp-eyebrow lp-in" style={{ '--d': '.15s' }}><span className="lp-live-dot" aria-hidden="true" />City of Tshwane · Smart Outage Management</span>
+          <h1 aria-label="Keeping the city powered, together.">
+            <span aria-hidden="true">
+              <Words text="Keeping the city powered," start={0.3} />
+              <span className="lp-word lp-accent" style={{ '--d': '.7s' }}>together.</span>
+            </span>
+          </h1>
+          <p className="lp-lead lp-in" style={{ '--d': '.95s' }}>
             PowerLink connects residents, field technicians and the municipality on one live platform, from the moment the lights go out until they come back on.
           </p>
-          <div className="lp-hero-actions">
+          <div className="lp-hero-actions lp-in" style={{ '--d': '1.15s' }}>
             <Link to="/login" className="btn btn-lg">Log in to PowerLink</Link>
             <Link to="/register" className="btn btn-lg lp-btn-outline-light">Register your meter</Link>
           </div>
         </div>
 
         <div className="lp-highlights" aria-label="Platform highlights">
-          {HIGHLIGHTS.map((h) => (
-            <div key={h.label} className="lp-highlight">
+          {HIGHLIGHTS.map((h, i) => (
+            <div key={h.label} className="lp-highlight lp-in" style={{ '--d': `${1.3 + i * 0.1}s` }}>
               <strong>{h.value}</strong>
               <span>{h.label}</span>
             </div>
@@ -78,14 +96,14 @@ export default function LandingPage() {
       </section>
 
       <section id="platform" className="lp-section">
-        <div className="lp-section-head">
+        <div className="lp-section-head" data-reveal>
           <span className="lp-kicker">The platform</span>
           <h2>One system for the entire outage lifecycle</h2>
           <p>Purpose-built tools that replace phone queues and spreadsheets with a single, transparent source of truth.</p>
         </div>
         <div className="lp-features">
-          {FEATURES.map((f) => (
-            <article key={f.title} className="lp-feature">
+          {FEATURES.map((f, i) => (
+            <article key={f.title} className="lp-feature" data-reveal style={{ '--d': `${(i % 3) * 0.1}s` }}>
               <span className="lp-feature-icon"><Icon name={f.icon} size={22} /></span>
               <h3>{f.title}</h3>
               <p>{f.text}</p>
@@ -95,13 +113,13 @@ export default function LandingPage() {
       </section>
 
       <section id="stakeholders" className="lp-section lp-section-alt">
-        <div className="lp-section-head">
+        <div className="lp-section-head" data-reveal>
           <span className="lp-kicker">Who it serves</span>
           <h2>Built for everyone who keeps the lights on</h2>
         </div>
         <div className="lp-stakeholders">
-          {STAKEHOLDERS.map((s) => (
-            <article key={s.title} className="lp-stakeholder">
+          {STAKEHOLDERS.map((s, i) => (
+            <article key={s.title} className="lp-stakeholder" data-reveal style={{ '--d': `${i * 0.12}s` }}>
               <span className="lp-feature-icon"><Icon name={s.icon} size={22} /></span>
               <h3>{s.title}</h3>
               <p>{s.text}</p>
@@ -116,13 +134,13 @@ export default function LandingPage() {
       </section>
 
       <section id="how-it-works" className="lp-section">
-        <div className="lp-section-head">
+        <div className="lp-section-head" data-reveal>
           <span className="lp-kicker">How it works</span>
           <h2>From fault to restored in four clear steps</h2>
         </div>
-        <ol className="lp-steps">
+        <ol className="lp-steps" data-reveal>
           {STEPS.map((s, i) => (
-            <li key={s.title} className="lp-step">
+            <li key={s.title} className="lp-step" style={{ '--d': `${i * 0.35}s` }}>
               <span className="lp-step-num">{String(i + 1).padStart(2, '0')}</span>
               <h3>{s.title}</h3>
               <p>{s.text}</p>
@@ -132,7 +150,7 @@ export default function LandingPage() {
       </section>
 
       <section className="lp-cta">
-        <div className="lp-cta-inner">
+        <div className="lp-cta-inner" data-reveal>
           <div>
             <h2>Ready to connect to PowerLink?</h2>
             <p>Register your meter today and stay informed whenever your power is affected.</p>

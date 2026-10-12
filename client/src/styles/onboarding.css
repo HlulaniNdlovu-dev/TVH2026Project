@@ -6,7 +6,11 @@ html:has(.landing) { scroll-behavior: smooth; }
 /* hero: full-bleed photo with a dark brand overlay so copy stays legible */
 .lp-hero {
   position: relative; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column;
-  background-color: var(--green-900); background-size: cover; background-position: center 35%; color: #fff;
+  background-color: var(--green-900); color: #fff; overflow: hidden;
+}
+.lp-hero-bg {
+  position: absolute; inset: 0; background-size: cover; background-position: center 35%;
+  animation: lp-ken-burns 24s ease-in-out infinite alternate;
 }
 .lp-hero-overlay {
   position: absolute; inset: 0; pointer-events: none;
@@ -14,7 +18,7 @@ html:has(.landing) { scroll-behavior: smooth; }
     linear-gradient(90deg, rgba(6, 28, 18, .92) 0%, rgba(8, 40, 25, .78) 42%, rgba(10, 69, 38, .25) 100%),
     linear-gradient(0deg, rgba(6, 28, 18, .55) 0%, transparent 35%);
 }
-.lp-hero > *:not(.lp-hero-overlay) { position: relative; }
+.lp-hero > *:not(.lp-hero-overlay):not(.lp-hero-bg) { position: relative; }
 
 .lp-nav {
   display: flex; align-items: center; justify-content: space-between; gap: 24px;
@@ -42,7 +46,11 @@ html:has(.landing) { scroll-behavior: smooth; }
   background: rgba(255, 255, 255, .06); backdrop-filter: blur(4px);
 }
 .lp-hero h1 { font-size: clamp(2.4rem, 5.4vw, 4.2rem); line-height: 1.06; max-width: 13em; margin: 22px 0 18px; }
-.lp-hero h1 span { color: var(--green-300); }
+.lp-hero h1 .lp-accent {
+  background: linear-gradient(100deg, var(--green-300) 0%, var(--green-300) 40%, #eafff1 50%, var(--green-300) 60%, var(--green-300) 100%);
+  background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: lp-word-in .9s cubic-bezier(.2, .7, .2, 1) var(--d, 0s) both, lp-shimmer 4.5s ease-in-out 2s infinite;
+}
 .lp-lead { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: rgba(255, 255, 255, .85); max-width: 34em; margin-bottom: 32px; }
 .lp-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
@@ -129,6 +137,62 @@ html:has(.landing) { scroll-behavior: smooth; }
   .lp-highlight strong { font-size: 1.2rem; }
   .lp-hero-actions .btn { flex: 1 1 100%; }
   .lp-cta-inner { padding: 48px var(--lp-gutter); }
+}
+
+/* ---------- landing motion ---------- */
+.lp-nav { animation: lp-drop .7s cubic-bezier(.2, .7, .2, 1) both; }
+.lp-in { animation: lp-rise .8s cubic-bezier(.2, .7, .2, 1) var(--d, 0s) both; }
+.lp-word { display: inline-block; animation: lp-word-in .9s cubic-bezier(.2, .7, .2, 1) var(--d, 0s) both; }
+
+.lp-eyebrow { display: inline-flex; align-items: center; gap: 8px; }
+.lp-live-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--green-300); }
+.lp-live-dot::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--green-300);
+  animation: lp-ping 1.8s ease-out infinite;
+}
+
+.lp-highlight strong { transition: transform .25s; }
+.lp-highlight:hover strong { transform: translateY(-2px); }
+
+/* scroll reveals: only hidden once JS has armed the observer, so content never gets stuck invisible */
+.lp-animate [data-reveal] { opacity: 0; transform: translateY(28px); }
+.lp-animate [data-reveal].is-in {
+  opacity: 1; transform: none;
+  transition: opacity .7s ease var(--d, 0s), transform .8s cubic-bezier(.2, .7, .2, 1) var(--d, 0s);
+}
+.lp-animate .lp-feature[data-reveal].is-in:hover { transform: translateY(-4px); transition-delay: 0s; }
+
+/* how-it-works: each step's line charges up in sequence, then current keeps flowing through it */
+.lp-animate .lp-steps[data-reveal] { opacity: 1; transform: none; }
+.lp-step { clip-path: inset(-8px 0 0 0); }
+.lp-animate .lp-step::before { width: 0; }
+.lp-animate .lp-step > * { opacity: 0; transform: translateY(14px); }
+.lp-steps.is-in .lp-step::before { width: 100%; transition: width .7s cubic-bezier(.6, 0, .2, 1) var(--d, 0s); }
+.lp-steps.is-in .lp-step > * {
+  opacity: 1; transform: none;
+  transition: opacity .5s ease calc(var(--d, 0s) + .35s), transform .6s cubic-bezier(.2, .7, .2, 1) calc(var(--d, 0s) + .35s);
+}
+.lp-steps.is-in .lp-step::after {
+  content: ""; position: absolute; top: -3px; left: 0; width: 70px; height: 4px; border-radius: 4px;
+  background: linear-gradient(90deg, transparent, #b8f5cf, transparent); filter: drop-shadow(0 0 6px var(--green-300));
+  animation: lp-current 2.8s ease-in-out calc(var(--d, 0s) + 1.6s) infinite both;
+}
+
+@keyframes lp-ken-burns { from { transform: scale(1.04); } to { transform: scale(1.14) translate(-1.5%, -1%); } }
+@keyframes lp-drop { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+@keyframes lp-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes lp-word-in {
+  from { opacity: 0; transform: translateY(.55em) rotate(2deg); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes lp-shimmer { 0%, 60% { background-position: 100% 0; } 100% { background-position: -50% 0; } }
+@keyframes lp-ping { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.8); opacity: 0; } }
+@keyframes lp-current { 0% { transform: translateX(-80px); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateX(min(100vw, 400px)); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-hero-bg, .lp-nav, .lp-in, .lp-word, .lp-hero h1 .lp-accent, .lp-live-dot::after, .lp-steps.is-in .lp-step::after { animation: none; }
+  .lp-animate [data-reveal], .lp-animate .lp-step > * { opacity: 1; transform: none; transition: none; }
+  .lp-animate .lp-step::before { width: 48px; transition: none; }
 }
 
 /* ---------- login / register ---------- */
