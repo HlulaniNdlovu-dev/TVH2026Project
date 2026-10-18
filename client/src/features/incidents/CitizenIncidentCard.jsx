@@ -3,6 +3,7 @@ import IncidentStepper from './IncidentStepper.jsx';
 import { StatusBadge } from './StatusBadge.jsx';
 import Banner from '../../components/Banner.jsx';
 import { formatDateTime } from '../../utils/format.js';
+import { withUser } from '../auth/userPaths.js';
 
 // The dashboard card for the citizen's current incident. After it is resolved it stays until the
 // "resolved" notification has been opened.
@@ -41,12 +42,12 @@ export default function CitizenIncidentCard({ incident }) {
 
       {incident.status === 'paused' && <Banner tone="warn">Repair paused: {incident.pausedReason}. We will update you when work resumes.</Banner>}
       {resolved && (
-        <Banner tone="success" action={<Link className="btn btn-sm" to="/citizen/notifications">Open notification</Link>}>
+        <Banner tone="success" action={<Link className="btn btn-sm" to={withUser('/citizen/notifications')}>Open notification</Link>}>
           Your power has been restored. Open the "Power restored" notification to clear this card.
         </Banner>
       )}
       {!resolved && (
-        <Link className="btn btn-outline btn-block" style={{ marginTop: 12 }} to="/citizen/incidents">
+        <Link className="btn btn-outline btn-block" style={{ marginTop: 12 }} to={withUser('/citizen/incidents')}>
           Track this incident
         </Link>
       )}

@@ -11,12 +11,13 @@ import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { useToast } from '../../components/Toast.jsx';
 import { formatDateTime, formatDistance, formatDuration } from '../../utils/format.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 export default function IncidentDetailPage() {
   const { incidentId } = useParams();
   const toast = useToast();
-  const { data: incident, error, loading, refresh } = usePolling(() => adminService.getIncident(incidentId), 3000, [incidentId], `admin:incident:${incidentId}`);
-  const board = usePolling(adminService.getDispatchBoard, 6000, [], 'admin:dispatch');
+  const { data: incident, error, loading, refresh } = usePolling(() => adminService.getIncident(incidentId), 1500, [incidentId], `admin:incident:${incidentId}`);
+  const board = usePolling(adminService.getDispatchBoard, 3000, [], 'admin:dispatch');
   const [assigning, setAssigning] = useState(false);
 
   if (loading && !incident) return <Spinner />;
@@ -35,7 +36,7 @@ export default function IncidentDetailPage() {
 
   return (
     <>
-      <Link to="/admin/incidents" className="back-link">← All incidents</Link>
+      <Link to={withUser('/admin/incidents')} className="back-link">← All incidents</Link>
       <PageHeader
         title={`${incident.id} · ${incident.nodeName}`}
         subtitle={`${incident.category} · ${incident.area} · opened ${formatDateTime(incident.createdAt)} (${formatDuration(incident.minutesOpen)})`}

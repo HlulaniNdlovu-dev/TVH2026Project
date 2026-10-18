@@ -1,5 +1,5 @@
 // The only place that talks to the network. Every other service goes through request().
-import { clearStoredUser, getStoredUser } from '../utils/storage.js';
+import { userIdFromPath } from '../features/auth/userPaths.js';
 
 // Where the API lives:
 //  - VITE_API_URL, when set, always wins.
@@ -19,23 +19,19 @@ export class ApiError extends Error {
 }
 
 async function request(method, path, body) {
-  const user = getStoredUser();
+  // No sessions: the user is whoever the current address names (see features/auth/userPaths.js).
+  const userId = userIdFromPath();
   let response;
   try {
     response = await fetch(`${API_BASE}${path}`, {
       method,
-      headers: { 'Content-Type': 'application/json', ...(user ? { 'x-user-id': user.id } : {}) },
+      headers: { 'Content-Type': 'application/json', ...(userId ? { 'x-user-id': userId } : {}) },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
     throw new ApiError('Cannot reach the PowerLink server. Check your connection and try again.', 0);
   }
   const data = await response.json().catch(() => ({}));
-  if (response.status === 401 && user && !path.startsWith('/auth/login')) {
-    // The account no longer exists (for example the demo was reset): send the user back to log in.
-    clearStoredUser();
-    window.location.assign('/login?expired=1');
-  }
   if (!response.ok) throw new ApiError(data.message || 'Something went wrong', response.status);
   return data;
 }

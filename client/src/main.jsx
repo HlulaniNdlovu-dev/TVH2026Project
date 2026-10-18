@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom/client';
 import 'leaflet/dist/leaflet.css';
 import './styles/index.css';
 import App from './App.jsx';
+import { wakeServer } from './features/server/serverStatus.js';
+
+// Start the hosted server straight away, so it is ready by the time someone logs in.
+wakeServer();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

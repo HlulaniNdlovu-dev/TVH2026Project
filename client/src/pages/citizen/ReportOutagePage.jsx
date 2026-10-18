@@ -10,6 +10,7 @@ import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { distanceMeters } from '../../utils/geo.js';
 import { formatDistance, formatTime } from '../../utils/format.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 function ReportResult({ result, onAnother }) {
   return (
@@ -34,8 +35,8 @@ function ReportResult({ result, onAnother }) {
       )}
       {result.tip && <Banner tone="warn">{result.tip}</Banner>}
       <div className="row">
-        <Link to="/citizen/incidents" className="btn">Track my incident</Link>
-        <Link to="/citizen/dashboard" className="btn btn-outline">Back to dashboard</Link>
+        <Link to={withUser('/citizen/incidents')} className="btn">Track my incident</Link>
+        <Link to={withUser('/citizen/dashboard')} className="btn btn-outline">Back to dashboard</Link>
         <button type="button" className="btn btn-ghost" onClick={onAnother}>Report another</button>
       </div>
     </div>
@@ -44,7 +45,7 @@ function ReportResult({ result, onAnother }) {
 
 export default function ReportOutagePage() {
   const meta = useMeta();
-  const { data: meters, loading } = usePolling(getMeters, 6000, [], 'citizen:meters');
+  const { data: meters, loading } = usePolling(getMeters, 3000, [], 'citizen:meters');
   const geo = useGeolocation();
 
   const [category, setCategory] = useState('');

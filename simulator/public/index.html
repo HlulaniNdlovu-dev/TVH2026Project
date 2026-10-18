@@ -22,7 +22,6 @@
         <div class="row">
           <button data-scenario="ownedHouse">Trip a customer's meter</button>
           <button data-scenario="anyHouse">Trip a random house</button>
-          <button data-scenario="flicker">Flicker (6 s, should be ignored)</button>
         </div>
         <div class="row">
           <select id="transformerSelect"></select>
@@ -50,15 +49,9 @@
 
       <section class="card">
         <h2>Technicians</h2>
-        <p class="hint">Technicians who tap "Navigate" drive to the incident automatically.</p>
+        <p class="hint">Technicians who tap "Navigate" drive to the incident automatically and arrive in <span id="driveSeconds">12</span> seconds.</p>
         <div class="row">
           <label class="check"><input id="autoDrive" type="checkbox" checked /> Auto-drive technicians</label>
-          <select id="speed">
-            <option value="1">1x (real time)</option>
-            <option value="5">5x</option>
-            <option value="10" selected>10x</option>
-            <option value="30">30x</option>
-          </select>
         </div>
         <ul id="techList" class="plain"></ul>
         <h2 class="mt">Event log</h2>

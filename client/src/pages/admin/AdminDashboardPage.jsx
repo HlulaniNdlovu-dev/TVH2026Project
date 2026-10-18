@@ -7,16 +7,17 @@ import StatCard, { pct } from '../../components/StatCard.jsx';
 import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { formatDuration, formatTime, timeAgo } from '../../utils/format.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 export default function AdminDashboardPage() {
-  const { data, error, loading } = usePolling(adminService.getOverview, 3000, [], 'admin:overview');
+  const { data, error, loading } = usePolling(adminService.getOverview, 1500, [], 'admin:overview');
   if (loading && !data) return <Spinner label="Loading the grid..." />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load the dashboard.'}</Banner>;
   const k = data.kpis;
 
   return (
     <>
-      <PageHeader title="Grid overview" subtitle="Live health of the network and the response to outages." actions={<Link className="btn" to="/admin/grid">Open live map</Link>} />
+      <PageHeader title="Grid overview" subtitle="Live health of the network and the response to outages." actions={<Link className="btn" to={withUser('/admin/grid')}>Open live map</Link>} />
       {error && <Banner tone="warn">Trying to reconnect to the server...</Banner>}
       {data.loadsheddingAreas.map((a) => (
         <div key={a.area} style={{ marginBottom: 12 }}>
@@ -38,7 +39,7 @@ export default function AdminDashboardPage() {
         <section>
           <div className="row-between" style={{ margin: '24px 0 10px' }}>
             <h2 style={{ margin: 0 }}>Priority queue</h2>
-            <Link to="/admin/incidents">All incidents</Link>
+            <Link to={withUser('/admin/incidents')}>All incidents</Link>
           </div>
           <IncidentTable incidents={data.queue} compact />
         </section>
@@ -49,7 +50,7 @@ export default function AdminDashboardPage() {
               <ul className="timeline">
                 {data.recentEvents.map((e, i) => (
                   <li key={i}>
-                    <span className="muted small">{timeAgo(e.ts)}</span> <Link to={`/admin/incidents/${e.incidentId}`}>{e.incidentId}</Link> {e.message}
+                    <span className="muted small">{timeAgo(e.ts)}</span> <Link to={withUser(`/admin/incidents/${e.incidentId}`)}>{e.incidentId}</Link> {e.message}
                   </li>
                 ))}
               </ul>

@@ -1,8 +1,6 @@
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Logo from '../../components/Logo.jsx';
 import HeroHouses from '../../components/HeroHouses.jsx';
-import { useAuth } from '../../features/auth/useAuth.js';
-import { homeForRole } from '../../features/auth/AuthContext.jsx';
 
 const FEATURES = [
   { title: 'Report in seconds', text: 'Tell the City about a power problem with your meter number and location. No queues, no call centres.' },
@@ -11,9 +9,6 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
-  const { user } = useAuth();
-  if (user) return <Navigate to={homeForRole(user.role)} replace />;
-
   return (
     <div className="landing">
       <div className="landing-bg" aria-hidden="true" />

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "PowerLink API (Express + MySQL)",
+  "description": "PowerLink API (Express, in-memory demo data)",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js"
@@ -12,7 +12,6 @@
     "compression": "^1.8.2",
     "cors": "^2.8.5",
     "dotenv": "^18.0.1",
-    "express": "^4.19.2",
-    "mysql2": "^3.24.4"
+    "express": "^4.19.2"
   }
 }

@@ -4,6 +4,7 @@ import BaseMap, { FitBounds } from './BaseMap.jsx';
 import { incidentIcon, substationIcon, technicianIcon, transformerIcon } from './mapIcons.js';
 import { PriorityBadge, StatusBadge } from '../incidents/StatusBadge.jsx';
 import { formatWatts, timeAgo } from '../../utils/format.js';
+import { withUser } from '../auth/userPaths.js';
 
 const stateColor = (node) => {
   if (node.state === 'OFF') return node.offReason === 'loadshedding' ? '#e59a1a' : '#d64545';
@@ -63,7 +64,7 @@ export default function GridMap({ grid, focus = 'all', className = 'map-lg' }) {
             <strong>{i.id}</strong> · {i.nodeName}
             <div className="row" style={{ margin: '6px 0' }}><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /><StatusBadge status={i.status} /></div>
             <div>{i.affectedCount} customer(s) · {i.technician ? i.technician.name : 'unassigned'}</div>
-            <Link to={`/admin/incidents/${i.id}`}>Open incident</Link>
+            <Link to={withUser(`/admin/incidents/${i.id}`)}>Open incident</Link>
           </Popup>
         </Marker>
       ))}

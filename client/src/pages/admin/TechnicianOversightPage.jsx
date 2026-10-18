@@ -6,11 +6,12 @@ import PageHeader from '../../components/PageHeader.jsx';
 import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { timeAgo } from '../../utils/format.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 const TONE = { Idle: 'green', 'Job offered': 'blue', 'En route': 'amber', 'On site': 'green', Working: 'green', Paused: 'amber', Unavailable: 'grey' };
 
 export default function TechnicianOversightPage() {
-  const { data, error, loading } = usePolling(adminService.getTechnicians, 2500, [], 'admin:technicians');
+  const { data, error, loading } = usePolling(adminService.getTechnicians, 1500, [], 'admin:technicians');
   if (loading && !data) return <Spinner />;
   if (!data) return <Banner tone="error">{error?.message}</Banner>;
 
@@ -34,7 +35,7 @@ export default function TechnicianOversightPage() {
                 <td><strong>{t.name}</strong><div className="muted small">{t.employeeId} · {t.skills.join(', ')}</div></td>
                 <td><span className={`badge ${t.dutyStatus === 'available' ? 'badge-green' : 'badge-grey'}`}>{t.dutyStatus === 'available' ? 'Available' : 'Unavailable'}</span></td>
                 <td><span className={`badge badge-${TONE[t.activity] ?? 'grey'}`}>{t.activity}</span></td>
-                <td>{t.currentIncident ? <Link to={`/admin/incidents/${t.currentIncident}`}>{t.currentIncident}</Link> : <span className="muted">-</span>}</td>
+                <td>{t.currentIncident ? <Link to={withUser(`/admin/incidents/${t.currentIncident}`)}>{t.currentIncident}</Link> : <span className="muted">-</span>}</td>
                 <td>{t.route?.etaMinutes ? `~${t.route.etaMinutes} min` : '-'}</td>
                 <td>{t.openJobs}</td>
                 <td>{t.completedToday}</td>

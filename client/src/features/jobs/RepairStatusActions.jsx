@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useJobActions } from './useJobActions.js';
 import PauseJobModal from './PauseJobModal.jsx';
 import { StatusBadge } from '../incidents/StatusBadge.jsx';
+import { withUser } from '../auth/userPaths.js';
 
 // "Update repair status": a shortcut for the current job. It only offers the steps that make sense right now.
 export default function RepairStatusActions({ job, onChange }) {
@@ -10,7 +11,7 @@ export default function RepairStatusActions({ job, onChange }) {
   const actions = useJobActions(job.id, onChange);
   const [pausing, setPausing] = useState(false);
 
-  const complete = () => navigate(`/technician/tasks/${job.id}/close`);
+  const complete = () => navigate(withUser(`/technician/tasks/${job.id}/close`));
   const { status, state } = job;
   let buttons;
 

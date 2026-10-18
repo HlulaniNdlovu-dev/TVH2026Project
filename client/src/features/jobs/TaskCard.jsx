@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { PriorityBadge, StatusBadge } from '../incidents/StatusBadge.jsx';
 import Icon from '../../components/Icon.jsx';
 import { formatDateTime } from '../../utils/format.js';
+import { withUser } from '../auth/userPaths.js';
 
 // A job in a list. Jobs that have not been accepted yet get Accept / Decline buttons.
 export default function TaskCard({ job, highlight = false, onAccept, onDecline, busy }) {
@@ -30,7 +31,7 @@ export default function TaskCard({ job, highlight = false, onAccept, onDecline, 
           <button type="button" className="btn btn-warn grow" disabled={busy} onClick={() => onDecline?.(job)}>Decline</button>
         </div>
       ) : null}
-      <Link className={`btn ${job.state === 'pending' ? 'btn-ghost' : ''} btn-block`} style={{ marginTop: job.state === 'pending' ? 6 : 0 }} to={`/technician/tasks/${job.id}`}>
+      <Link className={`btn ${job.state === 'pending' ? 'btn-ghost' : ''} btn-block`} style={{ marginTop: job.state === 'pending' ? 6 : 0 }} to={withUser(`/technician/tasks/${job.id}`)}>
         {job.state === 'pending' ? 'View details' : 'Open task'}
       </Link>
     </div>

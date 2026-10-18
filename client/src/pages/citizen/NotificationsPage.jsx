@@ -8,7 +8,7 @@ import Spinner from '../../components/Spinner.jsx';
 import { formatDateTime } from '../../utils/format.js';
 
 export default function NotificationsPage() {
-  const { data, loading, refresh, setData } = usePolling(listNotifications, 4000, [], 'citizen:notifications');
+  const { data, loading, refresh, setData } = usePolling(listNotifications, 2000, [], 'citizen:notifications');
   const [selected, setSelected] = useState(null);
 
   // Opens the detail popup and, the first time, marks it read. Highlighting drops away because

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Logo from '../../components/Logo.jsx';
 import Banner from '../../components/Banner.jsx';
 import AddressPicker from '../../features/map/AddressPicker.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
-import { homeForRole } from '../../features/auth/AuthContext.jsx';
+import ServerWakeBanner from '../../features/server/ServerWakeBanner.jsx';
+import { useServerStatus } from '../../features/server/serverStatus.js';
 import { geocodeAddress } from '../../services/geocodingService.js';
 
 const EMPTY = { name: '', phone: '', email: '', password: '', meterNumber: '', address: '' };
@@ -21,15 +22,13 @@ function validate(form) {
 }
 
 export default function RegisterPage() {
-  const { user, register } = useAuth();
-  const navigate = useNavigate();
+  const { register } = useAuth();
+  const awake = useServerStatus() === 'awake';
   const [form, setForm] = useState(EMPTY);
   const [position, setPosition] = useState(null);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [busy, setBusy] = useState(false);
-
-  if (user) return <Navigate to={homeForRole(user.role)} replace />;
 
   const set = (key) => (event) => setForm((f) => ({ ...f, [key]: event.target.value }));
 
@@ -46,11 +45,10 @@ export default function RegisterPage() {
       if (!point) {
         point = await geocodeAddress(form.address).catch(() => null);
       }
-      const created = await register({ ...form, lat: point?.lat, lng: point?.lng });
-      navigate(homeForRole(created.role), { replace: true });
+      // Opens the new citizen's own pages.
+      await register({ ...form, lat: point?.lat, lng: point?.lng });
     } catch (err) {
       setFormError(err.message);
-    } finally {
       setBusy(false);
     }
   };
@@ -61,6 +59,7 @@ export default function RegisterPage() {
         <Link to="/" aria-label="PowerLink home"><Logo size={40} /></Link>
         <h1>Create your account</h1>
         <p className="muted">Register your home and meter so we can tell you about outages and repairs.</p>
+        <ServerWakeBanner />
         {formError && <Banner tone="error">{formError}</Banner>}
 
         <form onSubmit={submit} noValidate style={{ marginTop: 16 }}>
@@ -94,7 +93,7 @@ export default function RegisterPage() {
 
           <AddressPicker address={form.address} onAddressChange={(address) => setForm((f) => ({ ...f, address }))} position={position} onPositionChange={setPosition} error={errors.address} />
 
-          <button className="btn btn-block btn-lg" type="submit" disabled={busy} style={{ marginTop: 18 }}>
+          <button className="btn btn-block btn-lg" type="submit" disabled={busy || !awake} style={{ marginTop: 18 }}>
             {busy ? 'Creating account...' : 'Create account'}
           </button>
         </form>

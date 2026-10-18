@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
+import { withUser } from '../../features/auth/userPaths.js';
 import { useUnreadCount } from '../../features/notifications/useUnreadCount.js';
 
 const TABS = [
@@ -31,7 +32,7 @@ export default function CitizenLayout() {
       </main>
       <nav className="m-bottomnav" aria-label="Main">
         {TABS.map((tab) => (
-          <NavLink key={tab.to} to={tab.to} className={({ isActive }) => (isActive ? 'active' : '')}>
+          <NavLink key={tab.to} to={withUser(tab.to)} className={({ isActive }) => (isActive ? 'active' : '')}>
             <Icon name={tab.icon} />
             {tab.label}
             {tab.badge && unread > 0 && <span className="nav-badge">{unread > 9 ? '9+' : unread}</span>}

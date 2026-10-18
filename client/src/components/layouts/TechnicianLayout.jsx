@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 const TABS = [
   { to: '/technician/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -26,7 +27,7 @@ export default function TechnicianLayout() {
       </main>
       <nav className="m-bottomnav" aria-label="Main">
         {TABS.map((tab) => (
-          <NavLink key={tab.to} to={tab.to} className={({ isActive }) => (isActive ? 'active' : '')}>
+          <NavLink key={tab.to} to={withUser(tab.to)} className={({ isActive }) => (isActive ? 'active' : '')}>
             <Icon name={tab.icon} />
             {tab.label}
           </NavLink>

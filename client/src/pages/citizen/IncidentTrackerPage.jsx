@@ -7,6 +7,7 @@ import Banner from '../../components/Banner.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { formatDateTime } from '../../utils/format.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 function CurrentIncident({ incident }) {
   return (
@@ -45,7 +46,7 @@ function HistoryItem({ incident }) {
 }
 
 export default function IncidentTrackerPage() {
-  const { data, error, loading } = usePolling(getIncidents, 4000, [], 'citizen:incidents');
+  const { data, error, loading } = usePolling(getIncidents, 2000, [], 'citizen:incidents');
   if (loading && !data) return <Spinner label="Loading your incidents..." />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load your incidents.'}</Banner>;
 
@@ -63,7 +64,7 @@ export default function IncidentTrackerPage() {
         ) : (
           <div className="card card-flat">
             <EmptyState title="No current incidents">
-              Everything looks fine. <Link to="/citizen/report">Report a problem</Link> if your power is off.
+              Everything looks fine. <Link to={withUser('/citizen/report')}>Report a problem</Link> if your power is off.
             </EmptyState>
           </div>
         )}

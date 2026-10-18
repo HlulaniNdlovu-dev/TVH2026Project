@@ -8,6 +8,7 @@ import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import Icon from '../../components/Icon.jsx';
 import { formatDate, formatTime } from '../../utils/format.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 const AREA_ICON = { operational: 'check', outage_nearby: 'alert', loadshedding: 'bolt' };
 const AREA_TITLE = { operational: 'Grid fully operational', outage_nearby: 'Outages nearby', loadshedding: 'Loadshedding' };
@@ -26,7 +27,7 @@ function NextSlot({ slot }) {
 
 export default function CitizenDashboardPage() {
   const { user } = useAuth();
-  const { data, error, loading } = usePolling(getDashboard, 4000, [], 'citizen:dashboard');
+  const { data, error, loading } = usePolling(getDashboard, 2000, [], 'citizen:dashboard');
 
   if (loading && !data) return <Spinner label="Loading your dashboard..." />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load your dashboard.'}</Banner>;
@@ -58,7 +59,7 @@ export default function CitizenDashboardPage() {
             <h3 style={{ margin: 0 }}>No active incident</h3>
             <p className="muted" style={{ margin: 0 }}>Nothing is reported for your meters right now.</p>
           </div>
-          <Link to="/citizen/report" className="btn btn-outline btn-sm">Report outage</Link>
+          <Link to={withUser('/citizen/report')} className="btn btn-outline btn-sm">Report outage</Link>
         </div>
       )}
 

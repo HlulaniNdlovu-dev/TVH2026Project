@@ -13,6 +13,7 @@ import Spinner from '../../components/Spinner.jsx';
 import Icon from '../../components/Icon.jsx';
 import { useToast } from '../../components/Toast.jsx';
 import { formatDateTime, formatDuration } from '../../utils/format.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 // Shown instead of an empty "No assigned tasks" page.
 function StandingBy({ duty, lastJob, onGoAvailable }) {
@@ -40,7 +41,7 @@ function StandingBy({ duty, lastJob, onGoAvailable }) {
 
 export default function TechnicianDashboardPage() {
   const toast = useToast();
-  const { data, error, loading, refresh, setData } = usePolling(jobService.getMyJobs, 3000, [], 'technician:jobs');
+  const { data, error, loading, refresh, setData } = usePolling(jobService.getMyJobs, 1500, [], 'technician:jobs');
   const [declining, setDeclining] = useState(null);
   const current = data?.current;
   const actions = useJobActions(current?.id, refresh);
@@ -112,7 +113,7 @@ export default function TechnicianDashboardPage() {
         </section>
       )}
 
-      {data.history.length > 0 && <Link className="btn btn-outline" to="/technician/history">View completed jobs</Link>}
+      {data.history.length > 0 && <Link className="btn btn-outline" to={withUser('/technician/history')}>View completed jobs</Link>}
       {declining && <DeclineJobModal onClose={() => setDeclining(null)} onConfirm={declineJob} />}
     </div>
   );
