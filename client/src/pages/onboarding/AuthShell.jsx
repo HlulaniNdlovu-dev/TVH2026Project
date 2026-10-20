@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import BoltMark from '../../components/BoltMark.jsx';
+import transmissionLine from '../../assets/transmission-line-post.jpg';
 
 // Stroke icons ported from the prototype's inline <symbol> sprite.
 const PATHS = {
@@ -73,7 +74,7 @@ export default function AuthShell({ mode, children }) {
   return (
     <div className={`pl-auth${register ? ' is-register' : ''}`}>
       <aside className="panel">
-        <div className="photo">
+        <div className="photo" style={{ '--plimg': `url("${transmissionLine}")` }}>
           <div className="pin">
             <Link to="/" className="back">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

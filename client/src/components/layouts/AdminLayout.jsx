@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
+import { withUser } from '../../features/auth/userPaths.js';
 import { useToast } from '../Toast.jsx';
 import * as adminService from '../../services/adminService.js';
 
@@ -42,7 +43,7 @@ export default function AdminLayout() {
         <div className="brand"><Logo size={36} /></div>
         <nav className="a-nav" aria-label="Admin">
           {LINKS.map((link) => (
-            <NavLink key={link.to} to={link.to} onClick={() => setOpen(false)} className={({ isActive }) => (isActive || (link.to === '/admin/incidents' && location.pathname.startsWith('/admin/incidents')) ? 'active' : '')}>
+            <NavLink key={link.to} to={withUser(link.to)} onClick={() => setOpen(false)} className={({ isActive }) => (isActive || (link.to === '/admin/incidents' && location.pathname.startsWith(withUser('/admin/incidents'))) ? 'active' : '')}>
               <Icon name={link.icon} />
               {link.label}
             </NavLink>

@@ -9,12 +9,13 @@ import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { useToast } from '../../components/Toast.jsx';
 import { formatDuration } from '../../utils/format.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 const ACTIVITY_TONE = { Idle: 'green', 'Job offered': 'blue', 'En route': 'amber', 'On site': 'green', Working: 'green', Paused: 'amber', Unavailable: 'grey' };
 
 export default function DispatchBoardPage() {
   const toast = useToast();
-  const { data, error, loading, refresh } = usePolling(adminService.getDispatchBoard, 3000, [], 'admin:dispatch');
+  const { data, error, loading, refresh } = usePolling(adminService.getDispatchBoard, 1500, [], 'admin:dispatch');
   const [assigning, setAssigning] = useState(null);
   if (loading && !data) return <Spinner />;
   if (!data) return <Banner tone="error">{error?.message}</Banner>;
@@ -28,7 +29,7 @@ export default function DispatchBoardPage() {
           {data.unassigned.length ? data.unassigned.map((i) => (
             <div key={i.id} className="card card-flat dispatch-item">
               <div className="grow">
-                <div className="row"><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /><Link to={`/admin/incidents/${i.id}`}><strong>{i.id}</strong></Link></div>
+                <div className="row"><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /><Link to={withUser(`/admin/incidents/${i.id}`)}><strong>{i.id}</strong></Link></div>
                 <div>{i.nodeName} · {i.area}</div>
                 <div className="muted small">{i.affectedCount} customer(s) · waiting {formatDuration(i.minutesOpen)}</div>
               </div>
@@ -42,7 +43,7 @@ export default function DispatchBoardPage() {
               {data.awaitingVerification.map((i) => (
                 <div key={i.id} className="card card-flat dispatch-item">
                   <div className="grow">
-                    <Link to={`/admin/incidents/${i.id}`}><strong>{i.id}</strong></Link> · {i.nodeName}
+                    <Link to={withUser(`/admin/incidents/${i.id}`)}><strong>{i.id}</strong></Link> · {i.nodeName}
                     <div className="muted small">{i.reportCount} citizen report(s), not yet confirmed by sensors</div>
                   </div>
                   <button type="button" className="btn btn-outline btn-sm" onClick={() => setAssigning(i)}>Verify and assign</button>

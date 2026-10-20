@@ -34,6 +34,8 @@ const SensorsPage = lazy(() => import('../pages/admin/SensorsPage.jsx'));
 const AnalyticsPage = lazy(() => import('../pages/admin/AnalyticsPage.jsx'));
 const AuditLogPage = lazy(() => import('../pages/admin/AuditLogPage.jsx'));
 
+const SimulatorPage = lazy(() => import('../pages/simulator/SimulatorPage.jsx'));
+
 export default function AppRoutes() {
   return (
     <Suspense fallback={<Spinner />}>
@@ -42,10 +44,11 @@ export default function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/simulator" element={<SimulatorPage />} />
       </Route>
 
       <Route element={<ProtectedRoute role="citizen" />}>
-        <Route path="/citizen" element={<CitizenLayout />}>
+        <Route path="/citizen/:userId" element={<CitizenLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<CitizenDashboardPage />} />
           <Route path="report" element={<ReportOutagePage />} />
@@ -56,7 +59,7 @@ export default function AppRoutes() {
       </Route>
 
       <Route element={<ProtectedRoute role="technician" />}>
-        <Route path="/technician" element={<TechnicianLayout />}>
+        <Route path="/technician/:userId" element={<TechnicianLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<TechnicianDashboardPage />} />
           <Route path="tasks/:jobId" element={<TaskDetailPage />} />
@@ -66,7 +69,7 @@ export default function AppRoutes() {
       </Route>
 
       <Route element={<ProtectedRoute role="admin" />}>
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin/:userId" element={<AdminLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboardPage />} />
           <Route path="grid" element={<LiveGridPage />} />

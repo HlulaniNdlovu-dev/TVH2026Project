@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AuthShell, { AuthField, AuthPasswordField } from './AuthShell.jsx';
 import AddressPicker from '../../features/map/AddressPicker.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
-import { homeForRole } from '../../features/auth/AuthContext.jsx';
+import ServerWakeBanner from '../../features/server/ServerWakeBanner.jsx';
+import { useServerStatus } from '../../features/server/serverStatus.js';
 import { geocodeAddress } from '../../services/geocodingService.js';
 
 // `confirm` is tracked for client-side feedback only and is NOT sent to the API.
@@ -23,15 +24,13 @@ function validate(form) {
 }
 
 export default function RegisterPage() {
-  const { user, register } = useAuth();
-  const navigate = useNavigate();
+  const { register } = useAuth();
+  const awake = useServerStatus() === 'awake';
   const [form, setForm] = useState(EMPTY);
   const [position, setPosition] = useState(null);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [busy, setBusy] = useState(false);
-
-  if (user) return <Navigate to={homeForRole(user.role)} replace />;
 
   const set = (key) => (event) => setForm((f) => ({ ...f, [key]: event.target.value }));
 
@@ -51,13 +50,12 @@ export default function RegisterPage() {
     try {
       let point = position;
       if (!point) point = await geocodeAddress(form.address).catch(() => null);
-      // Send only the fields the API accepts; `confirm` is excluded.
+      // Send only the fields the API accepts; `confirm` is excluded. `register` opens the new
+      // citizen's own user-ID-based pages (navigation is handled inside AuthContext).
       const { confirm, ...payload } = form;
-      const created = await register({ ...payload, lat: point?.lat, lng: point?.lng });
-      navigate(homeForRole(created.role), { replace: true });
+      await register({ ...payload, lat: point?.lat, lng: point?.lng });
     } catch (err) {
       setFormError(err.message);
-    } finally {
       setBusy(false);
     }
   };
@@ -67,6 +65,7 @@ export default function RegisterPage() {
       <section id="register">
         <h1 className="serif">Create your account</h1>
         <p className="sub">Register your home and meter so we can tell you about outages and repairs.</p>
+        <ServerWakeBanner />
 
         {formError && (
           <div className="banner banner-error" role="alert">
@@ -156,7 +155,7 @@ export default function RegisterPage() {
             error={errors.address}
           />
 
-          <button className="go" type="submit" disabled={busy}>
+          <button className="go" type="submit" disabled={busy || !awake}>
             {busy ? 'Creating account...' : 'Create account'}
           </button>
           <p className="alt">

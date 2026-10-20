@@ -6,6 +6,7 @@ import PhotoPicker from '../../components/PhotoPicker.jsx';
 import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { useToast } from '../../components/Toast.jsx';
+import { withUser } from '../../features/auth/userPaths.js';
 
 const CAUSE_SUGGESTIONS = ['Blown fuse', 'Cable fault', 'Transformer failure', 'Vandalism / theft', 'Overload', 'Tree / weather damage'];
 
@@ -13,7 +14,7 @@ export default function CloseTaskPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
-  const { data: job, loading } = usePolling(() => jobService.getJob(jobId), 5000, [jobId], `technician:task:${jobId}`);
+  const { data: job, loading } = usePolling(() => jobService.getJob(jobId), 2500, [jobId], `technician:task:${jobId}`);
 
   const [workDone, setWorkDone] = useState(false);
   const [partsUsed, setPartsUsed] = useState('');
@@ -34,7 +35,7 @@ export default function CloseTaskPage() {
         <Banner tone="warn">
           {job.state === 'closed' ? 'This job is already closed.' : job.state === 'cancelled' ? 'This job was cancelled.' : 'Start the job before you close it.'}
         </Banner>
-        <Link className="btn" to={`/technician/tasks/${jobId}`}>Back to task</Link>
+        <Link className="btn" to={withUser(`/technician/tasks/${jobId}`)}>Back to task</Link>
       </div>
     );
   }
@@ -51,7 +52,7 @@ export default function CloseTaskPage() {
     try {
       await jobService.closeJob(jobId, { workDone, partsUsed, faultCause, notes, photos });
       toast('Job closed. Power restoration has been requested.');
-      navigate('/technician/dashboard', { replace: true });
+      navigate(withUser('/technician/dashboard'), { replace: true });
     } catch (err) {
       setFormError(err.message);
       setBusy(false);
@@ -60,7 +61,7 @@ export default function CloseTaskPage() {
 
   return (
     <form onSubmit={submit} noValidate className="stack">
-      <Link to={`/technician/tasks/${jobId}`} className="back-link">← Back to task</Link>
+      <Link to={withUser(`/technician/tasks/${jobId}`)} className="back-link">← Back to task</Link>
       <div className="page-title">
         <h1>Close task</h1>
         <p>{job.incident.id} · {job.incident.category} · {job.incident.area}</p>

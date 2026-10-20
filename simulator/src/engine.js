@@ -64,7 +64,7 @@ export function trip(nodeId, kind = 'manual', seconds = null) {
   const node = state.byId.get(nodeId);
   if (!node) throw new Error(`Unknown node ${nodeId}`);
   state.faults.set(nodeId, { kind, until: seconds ? Date.now() + seconds * 1000 : null });
-  addLog(`${kind === 'flicker' ? 'Flicker on' : 'Tripped'} ${label(node)}`, 'fault');
+  addLog(`Tripped ${label(node)}`, 'fault');
 }
 
 export function restore(nodeId) {
@@ -136,23 +136,34 @@ function distance(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+// Each drive takes config.driveSeconds, however far the site is, so the demo never waits on a long trip.
+function positionOnDrive(t, now) {
+  const key = `${t.destination.lat},${t.destination.lng}`;
+  let drive = state.drives.get(t.id);
+  if (!drive || drive.key !== key) {
+    drive = { key, from: { lat: t.lat, lng: t.lng }, startedAt: now };
+    state.drives.set(t.id, drive);
+  }
+  if (distance(drive.from, t.destination) <= 25) return { lat: t.lat, lng: t.lng };
+  const fraction = Math.min(1, (now - drive.startedAt) / (config.driveSeconds * 1000));
+  return {
+    lat: drive.from.lat + (t.destination.lat - drive.from.lat) * fraction,
+    lng: drive.from.lng + (t.destination.lng - drive.from.lng) * fraction,
+  };
+}
+
 export async function driveTechnicians() {
   const { technicians } = await api.getTechnicians();
-  const stepMeters = (config.technicianSpeedKmh / 3.6) * state.speedMultiplier * config.technicianPollSeconds;
+  const now = Date.now();
   const locations = technicians.map((t) => {
-    let { lat, lng } = t;
-    if (state.autoDrive && t.destination) {
-      const remaining = distance({ lat, lng }, t.destination);
-      if (remaining > 25) {
-        const fraction = Math.min(1, stepMeters / remaining);
-        lat += (t.destination.lat - lat) * fraction;
-        lng += (t.destination.lng - lng) * fraction;
-      }
-    }
-    return { technicianId: t.id, lat, lng, destination: t.destination };
+    if (!t.destination) state.drives.delete(t.id);
+    // While driving is paused the clock on the trip is paused too, so it carries on from the same spot.
+    if (t.destination && !state.autoDrive && state.drives.has(t.id)) state.drives.get(t.id).startedAt += config.technicianPollSeconds * 1000;
+    const { lat, lng } = t.destination && state.autoDrive ? positionOnDrive(t, now) : t;
+    return { technicianId: t.id, lat, lng };
   });
   state.technicians = locations.map((l) => ({ ...technicians.find((t) => t.id === l.technicianId), lat: l.lat, lng: l.lng }));
-  await api.postLocations(locations.map(({ technicianId, lat, lng }) => ({ technicianId, lat, lng })));
+  await api.postLocations(locations);
 }
 
 /* ---------------- scenarios ---------------- */
@@ -183,11 +194,6 @@ export const scenarios = {
     const node = id ? state.byId.get(id) : pick(healthy(state.nodes.filter((n) => n.type === 'substation')));
     if (!node) throw new Error('No healthy substation is available');
     trip(node.id);
-    return node.id;
-  },
-  flicker(id) {
-    const node = id ? state.byId.get(id) : pick(healthy(state.nodes.filter((n) => n.type === 'house')));
-    trip(node.id, 'flicker', 6);
     return node.id;
   },
 };

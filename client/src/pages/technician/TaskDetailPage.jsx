@@ -13,11 +13,12 @@ import Icon from '../../components/Icon.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { formatDateTime, formatTime } from '../../utils/format.js';
 import { googleMapsDirections } from '../../utils/geo.js';
+import { withUser } from '../../features/auth/userPaths.js';
 
 export default function TaskDetailPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const { data: job, error, loading, refresh } = usePolling(() => jobService.getJob(jobId), 3000, [jobId], `technician:task:${jobId}`);
+  const { data: job, error, loading, refresh } = usePolling(() => jobService.getJob(jobId), 1500, [jobId], `technician:task:${jobId}`);
   const actions = useJobActions(jobId, refresh);
   const [declining, setDeclining] = useState(false);
   const [pausing, setPausing] = useState(false);
@@ -40,7 +41,7 @@ export default function TaskDetailPage() {
 
   return (
     <div className="stack">
-      <Link to="/technician/dashboard" className="back-link">← Back to dashboard</Link>
+      <Link to={withUser('/technician/dashboard')} className="back-link">← Back to dashboard</Link>
 
       <div>
         <div className="row"><PriorityBadge level={incident.priority.level} /><StatusBadge status={incident.status} /><span className="muted small">{incident.id}</span></div>
@@ -114,7 +115,7 @@ export default function TaskDetailPage() {
             ) : (
               <button type="button" className="btn btn-warn grow" disabled={actions.busy} onClick={() => setPausing(true)}>Pause job</button>
             )}
-            <button type="button" className="btn grow" disabled={actions.busy} onClick={() => navigate(`/technician/tasks/${job.id}/close`)}>Complete job</button>
+            <button type="button" className="btn grow" disabled={actions.busy} onClick={() => navigate(withUser(`/technician/tasks/${job.id}/close`))}>Complete job</button>
           </div>
         </div>
       )}
@@ -131,7 +132,7 @@ export default function TaskDetailPage() {
       {declining && (
         <DeclineJobModal busy={actions.busy} onClose={() => setDeclining(false)} onConfirm={async (reason) => {
           const ok = await actions.decline(reason);
-          if (ok) navigate('/technician/dashboard');
+          if (ok) navigate(withUser('/technician/dashboard'));
         }} />
       )}
       {pausing && (

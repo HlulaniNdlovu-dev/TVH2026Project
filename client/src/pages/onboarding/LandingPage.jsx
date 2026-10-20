@@ -1,3 +1,4 @@
+import transmissionLine from '../../assets/transmission-line-post.jpg';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import BoltMark from '../../components/BoltMark.jsx';
@@ -281,7 +282,9 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="hx-dev">
-              <div className="hx-screen" role="img" aria-label="Transmission towers at sunset" />
+              <div className="hx-screen" role="img" aria-label="Transmission towers at sunset">
+                <img src={transmissionLine} alt="" />
+              </div>
               <div className="hx-float">
                 <span className="hx-ic">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -73,7 +73,7 @@ async function refresh() {
     .map((t) => `<li><span>${t.name}</span><span class="tag">${t.destination ? 'driving' : t.dutyStatus}</span></li>`)
     .join('') || '<li>No technicians yet</li>';
   $('log').innerHTML = s.log.map((l) => `<li class="${l.level}">${new Date(l.ts).toLocaleTimeString()}  ${l.message}</li>`).join('');
-  if (document.activeElement !== $('speed')) $('speed').value = String(s.speedMultiplier);
+  $('driveSeconds').textContent = String(s.driveSeconds);
   if (document.activeElement !== $('autoDrive')) $('autoDrive').checked = s.autoDrive;
 }
 
@@ -89,7 +89,6 @@ $('lsBtn').onclick = () => post('loadshedding', { area: $('areaSelect').value, m
 $('restoreAllBtn').onclick = () => post('restore-all');
 $('resetBtn').onclick = () => confirm('Reset all backend data (accounts, incidents, notifications) to the seed state?') && post('reset-backend');
 $('autoDrive').onchange = (e) => post('technicians', { autoDrive: e.target.checked });
-$('speed').onchange = (e) => post('technicians', { speed: e.target.value });
 
 refresh();
 setInterval(refresh, 1500);

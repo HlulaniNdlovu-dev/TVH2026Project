@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { PriorityBadge, StatusBadge } from './StatusBadge.jsx';
 import { formatDuration } from '../../utils/format.js';
+import { withUser } from '../auth/userPaths.js';
 
 // Admin list of incidents, most urgent first.
 export default function IncidentTable({ incidents, compact = false }) {
@@ -16,7 +17,7 @@ export default function IncidentTable({ incidents, compact = false }) {
         </thead>
         <tbody>
           {incidents.map((i) => (
-            <tr key={i.id} className="clickable" onClick={() => navigate(`/admin/incidents/${i.id}`)}>
+            <tr key={i.id} className="clickable" onClick={() => navigate(withUser(`/admin/incidents/${i.id}`))}>
               <td><strong>{i.id}</strong><div className="muted small">{i.category}</div></td>
               <td>{i.nodeName}<div className="muted small">{i.area}</div></td>
               <td><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /><div className="muted small">score {i.priority.score}</div></td>

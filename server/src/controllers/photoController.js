@@ -7,6 +7,6 @@ export const getPhoto = asyncHandler(async (req, res) => {
   const dataUrl = await stubs.getPhoto(req.params.id);
   const match = /^data:(.+?);base64,(.*)$/.exec(dataUrl ?? '');
   if (!match) throw notFound('Photo not found');
-  // Photos never change once saved, so let the browser keep them.
-  res.set({ 'Content-Type': match[1], 'Cache-Control': 'public, max-age=31536000, immutable' }).send(Buffer.from(match[2], 'base64'));
+  // Ids start again after every restart, so the browser must not keep an old photo under the same id.
+  res.set({ 'Content-Type': match[1], 'Cache-Control': 'no-store' }).send(Buffer.from(match[2], 'base64'));
 });

@@ -9,6 +9,7 @@ import notificationRoutes from './notificationRoutes.js';
 import technicianRoutes from './technicianRoutes.js';
 import adminRoutes from './adminRoutes.js';
 import telemetryRoutes from './telemetryRoutes.js';
+import simulatorRoutes from './simulatorRoutes.js';
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.use('/notifications', requireAuth, notificationRoutes);
 router.use('/technician', technicianRoutes);
 router.use('/admin', adminRoutes);
 router.use('/telemetry', telemetryRoutes);
+router.use('/simulator', simulatorRoutes);
 
 // Reset the in-memory database back to the seeded demo data (simulator or admin).
 router.post('/demo/reset', requireDeviceOrAdmin, telemetry.reset);

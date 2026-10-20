@@ -10,8 +10,8 @@ export const state = {
   baseWatts: new Map(), // house nodeId -> typical draw
   lastSent: new Map(), // nodeId -> 'ON' | 'OFF'
   technicians: [],
+  drives: new Map(), // technicianId -> { key, from, startedAt } for the trip in progress
   autoDrive: true,
-  speedMultiplier: 10,
   log: [],
 };
 

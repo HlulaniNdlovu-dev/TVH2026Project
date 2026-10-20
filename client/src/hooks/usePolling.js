@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getStoredUser } from '../utils/storage.js';
+import { userIdFromPath } from '../features/auth/userPaths.js';
 
 // Keeps a screen fresh by asking the server again every few seconds (a simple stand-in for websockets).
 //
-// With a `cacheKey`, the last successful result is also kept in sessionStorage (scoped to the logged-in user).
+// With a `cacheKey`, the last successful result is also kept in sessionStorage (scoped to the user in the URL).
 // The next time this page mounts - coming back from another screen - it renders that cached data immediately,
 // with no spinner, while a fresh copy loads quietly in the background. This is what makes switching between
 // pages feel instant instead of waiting for every screen to load from nothing each time.
@@ -27,7 +27,7 @@ function cacheWrite(key, value) {
 }
 
 export function usePolling(fetcher, intervalMs = 4000, deps = [], cacheKey = null) {
-  const storageKey = cacheKey ? `powerlink.cache.${getStoredUser()?.id ?? 'anon'}.${cacheKey}` : null;
+  const storageKey = cacheKey ? `powerlink.cache.${userIdFromPath() ?? 'anon'}.${cacheKey}` : null;
   const [data, setData] = useState(() => cacheRead(storageKey));
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(() => cacheRead(storageKey) === null);

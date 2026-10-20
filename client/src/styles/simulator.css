@@ -1,0 +1,34 @@
+/* ---------- sensor simulator control panel (/simulator) ---------- */
+.sim-page { min-height: 100%; background: var(--bg); }
+.sim-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px 24px; background: #fff; border-bottom: 1px solid var(--line); }
+.sim-top h1 { font-size: 1.3rem; margin: 8px 0 2px; }
+.sim-top p { margin: 0; }
+.sim-banner { padding: 16px 24px 0; }
+.sim-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; padding: 20px 24px; align-items: start; }
+.sim-card h2 { margin-bottom: 4px; }
+.sim-card h2 small { font-weight: 400; font-size: .8rem; margin-left: 6px; }
+.sim-wide { grid-column: 1 / -1; }
+.sim-row { margin-top: 10px; flex-wrap: nowrap; }
+.sim-row select { flex: 1; min-width: 0; width: auto; }
+.sim-card select, .sim-card .sim-minutes { padding: 7px 10px; }
+.sim-card .sim-minutes { width: 74px; flex: none; }
+.sim-row .btn { flex: none; }
+.sim-check { margin-top: 10px; gap: 8px; flex-wrap: nowrap; align-items: flex-start; }
+.sim-list { list-style: none; padding: 0; margin: 10px 0 0; font-size: .9rem; }
+.sim-list li { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.sim-list li:last-child { border-bottom: 0; }
+.sim-log { list-style: none; padding: 0; margin: 6px 0 0; max-height: 260px; overflow: auto; font-size: .8rem; font-family: ui-monospace, Consolas, monospace; }
+.sim-log li { padding: 3px 0; border-bottom: 1px dashed var(--line); }
+.sim-log-fault { color: var(--red); }
+.sim-log-ok { color: var(--green-700); }
+.sim-log-error { color: var(--amber); }
+.sim-node { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: .88rem; }
+.sim-node .dot { flex: none; }
+.sim-tag { margin-left: 6px; font-weight: 600; font-size: .7rem; padding: 1px 7px; }
+.sim-mini { min-height: 26px; padding: 2px 9px; font-size: .76rem; }
+.sim-children { margin-left: 20px; border-left: 2px solid var(--line); padding-left: 10px; }
+.sim-houses { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); column-gap: 18px; }
+@media (max-width: 520px) {
+  .sim-top, .sim-layout { padding-left: 16px; padding-right: 16px; }
+  .sim-layout { grid-template-columns: 1fr; }
+}

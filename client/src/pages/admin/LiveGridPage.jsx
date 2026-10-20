@@ -7,9 +7,10 @@ import { PriorityBadge, StatusBadge } from '../../features/incidents/StatusBadge
 import PageHeader from '../../components/PageHeader.jsx';
 import Banner from '../../components/Banner.jsx';
 import Spinner from '../../components/Spinner.jsx';
+import { withUser } from '../../features/auth/userPaths.js';
 
 export default function LiveGridPage() {
-  const { data, error, loading } = usePolling(adminService.getGrid, 2500, [], 'admin:grid');
+  const { data, error, loading } = usePolling(adminService.getGrid, 1500, [], 'admin:grid');
   const [focus, setFocus] = useState('all');
   if (loading && !data) return <Spinner label="Loading the grid..." />;
   if (!data) return <Banner tone="error">{error?.message ?? 'Could not load the grid.'}</Banner>;
@@ -37,7 +38,7 @@ export default function LiveGridPage() {
           {active.length ? (
             <div className="stack-sm">
               {active.sort((a, b) => b.priority.effective - a.priority.effective).map((i) => (
-                <Link key={i.id} to={`/admin/incidents/${i.id}`} className="side-incident">
+                <Link key={i.id} to={withUser(`/admin/incidents/${i.id}`)} className="side-incident">
                   <div className="row-between"><strong>{i.id}</strong><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /></div>
                   <div className="small">{i.nodeName}</div>
                   <div className="row small muted"><StatusBadge status={i.status} /> {i.affectedCount} customers · {i.technician ? i.technician.name : 'unassigned'}</div>
