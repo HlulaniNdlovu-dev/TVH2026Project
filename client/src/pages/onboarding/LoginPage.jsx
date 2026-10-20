@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import Logo from '../../components/Logo.jsx';
-import Banner from '../../components/Banner.jsx';
+import AuthShell, { AuthField, AuthPasswordField } from './AuthShell.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
 import { homeForRole } from '../../features/auth/AuthContext.jsx';
 
+// Existing demo accounts (unchanged credentials). The backend is phone-only.
 const DEMO_ACCOUNTS = [
   { role: 'Citizen', name: 'Thandi Mokoena', phone: '082 123 4567', password: 'password' },
   { role: 'Technician', name: 'Thabo Maseko', phone: '071 111 1111', password: 'password' },
@@ -38,44 +38,69 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <Link to="/" className="back-link">&larr; Back to home</Link>
-        <Link to="/" aria-label="PowerLink home"><Logo size={40} /></Link>
-        <h1>Welcome back</h1>
-        <p className="muted">Log in with your phone number.</p>
+    <AuthShell mode="login">
+      <section id="login">
+        <h1 className="serif">Welcome back</h1>
+        <p className="sub">Log in with your phone number.</p>
 
-        {params.get('expired') && <Banner tone="warn">Your session ended (the demo may have been reset). Please log in again.</Banner>}
-        {error && <Banner tone="error">{error}</Banner>}
+        {params.get('expired') && (
+          <div className="banner banner-warn" role="status">
+            Your session ended (the demo may have been reset). Please log in again.
+          </div>
+        )}
+        {error && (
+          <div className="banner banner-error" role="alert">
+            {error}
+          </div>
+        )}
 
-        <form onSubmit={submit} noValidate style={{ marginTop: 16 }}>
-          <div className="field">
-            <label htmlFor="phone">Phone number</label>
-            <input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="082 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
-          </div>
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          <button className="btn btn-block btn-lg" type="submit" disabled={busy}>{busy ? 'Logging in...' : 'Log in'}</button>
+        <form onSubmit={submit} noValidate>
+          <AuthField
+            id="phone"
+            label="Phone number"
+            icon="user"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="082 123 4567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <AuthPasswordField
+            id="password"
+            label="Password"
+            autoComplete="current-password"
+            placeholder="Your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button className="go" type="submit" disabled={busy}>
+            {busy ? 'Logging in...' : 'Log in'}
+          </button>
+          <p className="alt">
+            New to PowerLink? <Link to="/register">Create an account</Link>
+          </p>
         </form>
 
-        <p className="center small" style={{ marginTop: 16 }}>
-          New to PowerLink? <Link to="/register">Create an account</Link>
-        </p>
-
-        <details className="demo-accounts">
+        <details className="demo">
           <summary>Demo accounts</summary>
-          <div className="stack-sm" style={{ marginTop: 10 }}>
+          <div>
             {DEMO_ACCOUNTS.map((a) => (
-              <button key={a.role} type="button" className="option" onClick={() => { setPhone(a.phone); setPassword(a.password); }}>
-                <strong>{a.role}</strong> · {a.name}
-                <div className="muted small">{a.phone} / {a.password}</div>
+              <button
+                key={a.role}
+                type="button"
+                onClick={() => {
+                  setPhone(a.phone);
+                  setPassword(a.password);
+                }}
+              >
+                <b>{a.role}</b>, {a.name}
+                <small>{a.phone} / {a.password}</small>
               </button>
             ))}
           </div>
         </details>
-      </div>
-    </div>
+      </section>
+    </AuthShell>
   );
 }

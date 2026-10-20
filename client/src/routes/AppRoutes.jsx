@@ -9,6 +9,7 @@ import AdminLayout from '../components/layouts/AdminLayout.jsx';
 import LandingPage from '../pages/onboarding/LandingPage.jsx';
 import LoginPage from '../pages/onboarding/LoginPage.jsx';
 import RegisterPage from '../pages/onboarding/RegisterPage.jsx';
+import OnboardingLayout from '../pages/onboarding/OnboardingLayout.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 
 const CitizenDashboardPage = lazy(() => import('../pages/citizen/CitizenDashboardPage.jsx'));
@@ -37,9 +38,11 @@ export default function AppRoutes() {
   return (
     <Suspense fallback={<Spinner />}>
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route element={<OnboardingLayout />}>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
 
       <Route element={<ProtectedRoute role="citizen" />}>
         <Route path="/citizen" element={<CitizenLayout />}>
