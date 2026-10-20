@@ -110,7 +110,7 @@ export default function AuthShell({ mode, children }) {
             </span>
           </div>
           {children}
-          <p className="foot">Prototype for the Tshwane Varsity Hackathon 2026. Demo data only.</p>
+          <p className="foot">&copy; PowerLink • Tshwane Varsity Hackathon 2026</p>
         </div>
       </main>
     </div>

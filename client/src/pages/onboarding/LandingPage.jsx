@@ -443,7 +443,7 @@ export default function LandingPage() {
             <Link to="/login">Staff login</Link>
           </div>
         </div>
-        <div className="wrap legal">&copy; 2026 PowerLink. Prototype by Innovation Pushers, Tshwane Varsity Hackathon. Figures and examples are demo data.</div>
+        <div className="wrap legal">&copy; 2026 PowerLink • Innovation Pushers • Tshwane Varsity Hackathon</div>
       </footer>
     </div>
   );
