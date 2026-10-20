@@ -205,6 +205,12 @@
 .pl-auth .go { border: 0; border-radius: 12px; padding: 14px; font-weight: 600; font-size: 1rem; color: #fff; cursor: pointer; background: linear-gradient(90deg, #1b5e34, #3c9a54); transition: transform .15s; }
 .pl-auth .go:hover { transform: translateY(-1px); }
 .pl-auth .go:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+/* Secondary outline variant of .go (e.g. the simulator link). Text, underline and
+   border all use the landing page's brand green (--accent: #1b5e34 light /
+   #8fdca8 dark), both readable on the light (#fff) and dark (#0b120e) panels,
+   instead of .go's fixed white-on-gradient. */
+.pl-auth .go.go-out { display: block; margin-top: 12px; text-align: center; background: transparent; color: var(--accent); border: 1.5px solid var(--accent); text-decoration-color: var(--accent); }
+.pl-auth .go.go-out:hover { background: var(--field); }
 .pl-auth .alt { text-align: center; font-size: .92rem; color: var(--muted); }
 .pl-auth .alt a, .pl-auth .alt button { border: 0; background: none; color: var(--accent); font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; }
 .pl-auth .panel { position: relative; z-index: 2; padding: 22px; background: var(--bg); }

@@ -75,7 +75,7 @@ export default function LoginPage() {
           </p>
         </form>
 
-        <Link to="/simulator" className="go" target="_blank" rel="noreferrer" style={{ display: 'block', textAlign: 'center', marginTop: 12, background: 'transparent', border: '1.5px solid currentColor' }}>
+        <Link to="/simulator" className="go go-out" target="_blank" rel="noreferrer">
           Open the sensor simulator
         </Link>
 
