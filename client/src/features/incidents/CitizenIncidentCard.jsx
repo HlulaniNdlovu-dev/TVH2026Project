@@ -16,7 +16,7 @@ export default function CitizenIncidentCard({ incident }) {
           <div className="muted small">{incident.reportedByYou ? 'Your reported incident' : 'Outage affecting your meter'}</div>
           <h2 style={{ margin: 0 }}>{incident.category}</h2>
         </div>
-        <StatusBadge status={incident.status} />
+        <StatusBadge status={incident.status} awaiting={incident.awaitingAcceptance} />
       </div>
       <div className="muted small" style={{ margin: '4px 0 12px' }}>
         {incident.id} · {incident.area} · reported {formatDateTime(incident.createdAt)}

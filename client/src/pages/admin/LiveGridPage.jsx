@@ -41,7 +41,7 @@ export default function LiveGridPage() {
                 <Link key={i.id} to={withUser(`/admin/incidents/${i.id}`)} className="side-incident">
                   <div className="row-between"><strong>{i.id}</strong><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /></div>
                   <div className="small">{i.nodeName}</div>
-                  <div className="row small muted"><StatusBadge status={i.status} /> {i.affectedCount} customers · {i.technician ? i.technician.name : 'unassigned'}</div>
+                  <div className="row small muted"><StatusBadge status={i.status} awaiting={i.awaitingAcceptance} /> {i.affectedCount} customers · {i.technician ? i.technician.name : 'unassigned'}</div>
                 </Link>
               ))}
             </div>

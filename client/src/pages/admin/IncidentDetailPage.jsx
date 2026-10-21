@@ -40,7 +40,7 @@ export default function IncidentDetailPage() {
       <PageHeader
         title={`${incident.id} · ${incident.nodeName}`}
         subtitle={`${incident.category} · ${incident.area} · opened ${formatDateTime(incident.createdAt)} (${formatDuration(incident.minutesOpen)})`}
-        actions={<><PriorityBadge level={incident.priority.level} overridden={incident.priority.overridden} /><StatusBadge status={incident.status} /></>}
+        actions={<><PriorityBadge level={incident.priority.level} overridden={incident.priority.overridden} /><StatusBadge status={incident.status} awaiting={incident.awaitingAcceptance} /></>}
       />
       {incident.danger && <div style={{ marginBottom: 12 }}><Banner tone="error"><strong>Safety hazard reported</strong> (downed line or sparking equipment).</Banner></div>}
 

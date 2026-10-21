@@ -62,7 +62,7 @@ export default function GridMap({ grid, focus = 'all', className = 'map-lg' }) {
         <Marker key={i.id} position={[i.lat, i.lng]} icon={incidentIcon()} zIndexOffset={500}>
           <Popup>
             <strong>{i.id}</strong> · {i.nodeName}
-            <div className="row" style={{ margin: '6px 0' }}><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /><StatusBadge status={i.status} /></div>
+            <div className="row" style={{ margin: '6px 0' }}><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /><StatusBadge status={i.status} awaiting={i.awaitingAcceptance} /></div>
             <div>{i.affectedCount} customer(s) · {i.technician ? i.technician.name : 'unassigned'}</div>
             <Link to={withUser(`/admin/incidents/${i.id}`)}>Open incident</Link>
           </Popup>

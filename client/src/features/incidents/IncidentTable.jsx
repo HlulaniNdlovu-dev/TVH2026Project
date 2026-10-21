@@ -21,7 +21,7 @@ export default function IncidentTable({ incidents, compact = false }) {
               <td><strong>{i.id}</strong><div className="muted small">{i.category}</div></td>
               <td>{i.nodeName}<div className="muted small">{i.area}</div></td>
               <td><PriorityBadge level={i.priority.level} overridden={i.priority.overridden} /><div className="muted small">score {i.priority.score}</div></td>
-              <td><StatusBadge status={i.status} />{!i.sensorConfirmed && i.status === 'reported' && <div className="muted small">unconfirmed</div>}</td>
+              <td><StatusBadge status={i.status} awaiting={i.awaitingAcceptance} />{!i.sensorConfirmed && i.status === 'reported' && <div className="muted small">unconfirmed</div>}</td>
               <td>{i.affectedCount}</td>
               {!compact && <td>{i.reportCount}</td>}
               <td>{i.technician ? i.technician.name : <span className="muted">Unassigned</span>}</td>

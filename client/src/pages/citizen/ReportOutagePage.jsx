@@ -24,7 +24,7 @@ function ReportResult({ result, onAnother }) {
         <div className="card card-accent">
           <div className="row-between">
             <h2 style={{ margin: 0 }}>{result.incident.id}</h2>
-            <StatusBadge status={result.incident.status} />
+            <StatusBadge status={result.incident.status} awaiting={result.incident.awaitingAcceptance} />
           </div>
           <p className="muted" style={{ marginTop: 6 }}>
             {result.incident.status === 'reported'

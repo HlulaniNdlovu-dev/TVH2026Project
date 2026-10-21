@@ -84,6 +84,14 @@
 .step-time { font-size: .8rem; color: var(--muted); }
 .step-extra { font-size: .88rem; color: var(--green-700); font-weight: 600; margin-top: 2px; }
 .step.paused .step-extra { color: var(--amber); }
+/* Dispatched but not yet accepted: the dot ripples until a technician takes the job. */
+.step.now.pending .step-dot { animation: dot-ping 1.6s ease-out infinite; }
+.step.pending .step-extra { color: var(--ink-2); }
+@keyframes dot-ping { 0% { box-shadow: 0 0 0 0 rgba(34, 164, 93, .55); } 100% { box-shadow: 0 0 0 12px rgba(34, 164, 93, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .step.now.pending .step-dot, .stepper-h .seg.now { animation: none; }
+  .step.now.pending .step-dot { box-shadow: 0 0 0 5px var(--green-100); }
+}
 
 /* ---------- tabs ---------- */
 .tabs { display: flex; gap: 6px; background: var(--grey-bg); padding: 4px; border-radius: 12px; width: fit-content; max-width: 100%; overflow-x: auto; }

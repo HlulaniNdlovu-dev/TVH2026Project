@@ -2,7 +2,7 @@ import Icon from '../../components/Icon.jsx';
 import { timeAgo } from '../../utils/format.js';
 
 const TYPE_ICON = {
-  reported: 'report', detected: 'sensor', verified: 'check', dispatched: 'user', en_route: 'truck', nearby: 'pin',
+  reported: 'report', detected: 'sensor', verified: 'check', dispatched: 'user', accepted: 'user', en_route: 'truck', nearby: 'pin',
   arrived: 'pin', resumed: 'wrench', paused: 'clock', resolved: 'bolt', loadshedding: 'power',
 };
 

@@ -55,7 +55,8 @@ export async function accept(user, jobId) {
   const { job, incident } = await load(user, jobId);
   requireState(job, ['pending'], 'accept');
   await stubs.updateJob(job.id, { state: 'accepted', acceptedAt: nowIso() });
-  await stubs.recordIncidentEvent(incident.id, { type: 'accepted', actor: user.name, message: `${user.name} accepted the job` });
+  const updated = await stubs.recordIncidentEvent(incident.id, { type: 'accepted', actor: user.name, message: `${user.name} accepted the job` });
+  await notifications.notifyStatus(updated, 'accepted', { employeeId: user.employeeId });
   return detail(user, jobId);
 }
 

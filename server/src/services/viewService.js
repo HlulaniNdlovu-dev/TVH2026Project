@@ -15,6 +15,22 @@ export async function loadRefs() {
 }
 
 const firstEvent = (incident, type) => incident.timeline.find((e) => e.type === type)?.ts ?? null;
+const lastIndex = (incident, type) => incident.timeline.findLastIndex((e) => e.type === type);
+
+// When the current technician accepted the job. A decline or reassignment adds a newer
+// "dispatched" event, so an older acceptance stops counting.
+function acceptedAt(incident) {
+  const accepted = lastIndex(incident, 'accepted');
+  return accepted > lastIndex(incident, 'dispatched') ? incident.timeline[accepted].ts : null;
+}
+const awaitingAcceptance = (incident) => incident.status === 'dispatched' && !acceptedAt(incident);
+
+// When work last resumed after a pause, while the technician is still working.
+function resumedAt(incident) {
+  if (incident.status !== 'working') return null;
+  const resumed = lastIndex(incident, 'resumed');
+  return resumed > lastIndex(incident, 'paused') ? incident.timeline[resumed].ts : null;
+}
 
 export function citizenIncident(incident, userId, refs) {
   const tech = incident.technicianId ? refs.usersById.get(incident.technicianId) : null;
@@ -37,6 +53,9 @@ export function citizenIncident(incident, userId, refs) {
     etaMinutes: incident.status === 'en_route' ? incident.etaMinutes : null,
     departedAt: incident.departedAt,
     pausedReason: incident.status === 'paused' ? pauseLabel(incident.pausedReason) : null,
+    awaitingAcceptance: awaitingAcceptance(incident),
+    acceptedAt: acceptedAt(incident),
+    resumedAt: resumedAt(incident),
     steps: STEP_STATUSES.map((status) => ({ status, at: firstEvent(incident, status === 'reported' ? 'created' : status) })),
     resolutionSummary: incident.resolution?.auto ? 'Power was restored automatically.' : incident.resolution?.faultCause ?? null,
   };
@@ -67,6 +86,7 @@ export function adminIncidentSummary(incident, refs) {
     affectedCount: incident.affectedCount,
     reportCount: incident.reportCount,
     technician: tech ? { id: tech.id, name: tech.name } : null,
+    awaitingAcceptance: awaitingAcceptance(incident),
     etaMinutes: incident.etaMinutes,
     createdAt: incident.createdAt,
     resolvedAt: incident.resolvedAt,

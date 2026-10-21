@@ -7,7 +7,7 @@ const TEMPLATES = {
   reported: () => ({ title: 'Report received', message: (i) => `We received your outage report (${i.id}) and are checking it against our sensors.` }),
   detected: () => ({ title: 'Outage detected', message: (i) => `Our sensors detected an outage affecting your meter (${i.id}). We are getting it verified and dispatched.` }),
   verified: () => ({ title: 'Outage verified', message: (i) => `Your outage (${i.id}) has been verified. A technician will be assigned shortly.` }),
-  dispatched: (x) => ({ title: 'Technician assigned', message: (i) => `Technician ${x.employeeId} has been assigned to your outage (${i.id}).` }),
+  accepted: (x) => ({ title: 'Technician assigned', message: (i) => `Technician ${x.employeeId} has accepted your outage (${i.id}) and will be on the way soon.` }),
   en_route: (x) => ({ title: 'Technician on the way', message: (i) => `Technician ${x.employeeId} is on the way. Estimated arrival in about ${x.eta ?? '?'} min.` }),
   nearby: (x) => ({ title: 'Technician nearby', message: () => `Technician ${x.employeeId} is nearby and will arrive in a few minutes.` }),
   arrived: (x) => ({ title: 'Technician arrived', message: (i) => `Technician ${x.employeeId} has arrived and started work on ${i.id}.` }),

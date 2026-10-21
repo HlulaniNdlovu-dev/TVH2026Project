@@ -3,7 +3,6 @@ import * as stubs from '../db/stubs.js';
 import { config } from '../config/index.js';
 import { haversine } from '../utils/geo.js';
 import { nowIso, secondsSince } from '../utils/time.js';
-import * as notifications from './notificationService.js';
 import * as audit from './auditService.js';
 
 const OPEN_JOB_STATES = ['pending', 'accepted'];
@@ -42,7 +41,8 @@ export async function assign(incident, tech, { actor = null, reasoning = null, r
     assignedBy: actor?.name ?? 'System (auto-assign)', reasoning,
   });
   const message = actor ? `Assigned to ${tech.name} by ${actor.name}` : `Auto-assigned to ${tech.name} (${reasoning})`;
-  const updated = await stubs.recordIncidentEvent(
+  // Residents hear about the technician once the job is accepted (see jobService.accept).
+  await stubs.recordIncidentEvent(
     incident.id,
     { type: 'dispatched', actor: actor?.name ?? 'system', message, reason },
     {
@@ -50,7 +50,6 @@ export async function assign(incident, tech, { actor = null, reasoning = null, r
       etaMinutes: null, departedAt: null, arrivedAt: null, startedAt: null, pausedReason: null, nearbyNotified: false,
     },
   );
-  await notifications.notifyStatus(updated, 'dispatched', { employeeId: tech.employeeId });
   return job;
 }
 

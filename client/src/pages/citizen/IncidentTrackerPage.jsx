@@ -17,7 +17,7 @@ function CurrentIncident({ incident }) {
           <h2 style={{ margin: 0 }}>{incident.category}</h2>
           <div className="muted small">{incident.id} · {incident.area} · reported {formatDateTime(incident.createdAt)}</div>
         </div>
-        <StatusBadge status={incident.status} />
+        <StatusBadge status={incident.status} awaiting={incident.awaitingAcceptance} />
       </div>
       {incident.myMeters.length > 0 && <p className="small muted" style={{ marginTop: 8 }}>Affects meter {incident.myMeters.join(', ')}</p>}
       {incident.status === 'paused' && <Banner tone="warn">Repair paused: {incident.pausedReason}. We will update you when work resumes.</Banner>}
