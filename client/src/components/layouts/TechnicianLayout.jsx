@@ -3,6 +3,8 @@ import { NavLink, Outlet } from 'react-router-dom';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
 import Spinner from '../Spinner.jsx';
+import ThemeToggle from '../ThemeToggle.jsx';
+import { useTheme } from '../../features/theme/ThemeContext.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
 import { withUser } from '../../features/auth/userPaths.js';
 
@@ -13,12 +15,14 @@ const TABS = [
 
 export default function TechnicianLayout() {
   const { user, logout } = useAuth();
+  const { theme, toggle } = useTheme();
   return (
     <div className="m-shell">
       <header className="m-topbar">
         <Logo size={30} />
         <div className="row">
           <span className="small muted">{user.name} · {user.employeeId}</span>
+          <ThemeToggle theme={theme} onToggle={toggle} inline />
           <button type="button" className="btn btn-ghost btn-sm" onClick={logout} aria-label="Log out">
             <Icon name="logout" size={18} />
           </button>

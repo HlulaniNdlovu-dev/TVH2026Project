@@ -23,3 +23,11 @@
   .grid-charts { grid-template-columns: 1fr; }
   .bar-row { grid-template-columns: 110px 1fr 34px; }
 }
+
+/* Recharts sets colours as SVG attributes and inline styles; these let the charts follow the theme. */
+.chart-card .recharts-cartesian-axis-tick-value { fill: var(--muted); }
+.chart-card .recharts-cartesian-grid line { stroke: var(--chart-grid); }
+.chart-card .recharts-cartesian-axis-line, .chart-card .recharts-cartesian-axis-tick-line { stroke: var(--line); }
+.chart-card .recharts-default-tooltip { background: var(--surface) !important; border-color: var(--line) !important; border-radius: 10px; color: var(--ink); }
+.chart-card .recharts-tooltip-cursor { fill: var(--grey-bg); }
+.chart-card .recharts-pie-sector path { stroke: var(--surface); }

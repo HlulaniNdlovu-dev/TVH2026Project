@@ -9,15 +9,19 @@ import ScenarioPanel from '../../features/simulator/ScenarioPanel.jsx';
 import TechnicianPanel from '../../features/simulator/TechnicianPanel.jsx';
 import EventLog from '../../features/simulator/EventLog.jsx';
 import GridTree from '../../features/simulator/GridTree.jsx';
+import ThemeToggle from '../../components/ThemeToggle.jsx';
+import { useStoredTheme } from '../../features/theme/ThemeContext.jsx';
 
 // Control panel for the sensor simulator that runs inside the API. Pretends to be the smart meters,
 // transformer sensors and technician phones. Open it in its own tab next to the app.
 export default function SimulatorPage() {
   const { data, error, loading, refresh } = usePolling(simulator.getState, 1500);
   const { run, busy } = useSimulatorAction(refresh);
+  // Separate from the app theme: switching one never changes the other.
+  const [theme, toggleTheme] = useStoredTheme('pl_sim_theme');
 
   return (
-    <div className="sim-page">
+    <div className="sim-page" data-theme={theme}>
       <header className="sim-top">
         <div>
           <Link to="/login" aria-label="Back to login"><Logo size={30} /></Link>
@@ -42,6 +46,7 @@ export default function SimulatorPage() {
           <GridTree nodes={data.nodes} faultCount={data.faultCount} run={run} busy={busy} />
         </main>
       )}
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
     </div>
   );
 }

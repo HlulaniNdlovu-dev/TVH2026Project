@@ -3,6 +3,8 @@ import { NavLink, Outlet } from 'react-router-dom';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
 import Spinner from '../Spinner.jsx';
+import ThemeToggle from '../ThemeToggle.jsx';
+import { useTheme } from '../../features/theme/ThemeContext.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
 import { withUser } from '../../features/auth/userPaths.js';
 import { useUnreadCount } from '../../features/notifications/useUnreadCount.js';
@@ -17,6 +19,7 @@ const TABS = [
 
 export default function CitizenLayout() {
   const { user, logout } = useAuth();
+  const { theme, toggle } = useTheme();
   const unread = useUnreadCount();
   return (
     <div className="m-shell">
@@ -24,6 +27,7 @@ export default function CitizenLayout() {
         <Logo size={30} />
         <div className="row">
           <span className="small muted">{user.name.split(' ')[0]}</span>
+          <ThemeToggle theme={theme} onToggle={toggle} inline />
           <button type="button" className="btn btn-ghost btn-sm" onClick={logout} aria-label="Log out">
             <Icon name="logout" size={18} />
           </button>

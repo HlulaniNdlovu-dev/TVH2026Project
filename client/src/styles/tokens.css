@@ -1,5 +1,9 @@
-/* PowerLink design tokens: white is the primary surface, green is the brand accent. */
-:root {
+/* PowerLink design tokens: white is the primary surface, green is the brand accent.
+   [data-theme] sits on <html> for the app (see features/theme/ThemeContext.jsx); the
+   simulator sets its own on .sim-page, so these are scoped to any element carrying it. */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
   --white: #ffffff;
   --bg: #f4f9f5;
   --surface: #ffffff;
@@ -26,11 +30,59 @@
   --blue-bg: #e8f0fd;
   --grey-bg: #eef2ef;
 
-  --radius: 16px;
-  --radius-sm: 10px;
+  /* Colours that cannot simply follow the ones above when the theme flips. */
+  --btn-hover: #0f6a38;
+  --inverse: #16281d;
+  --info-ink: #1f4fa3;
+  --switch-off: #c3cdc6;
+  --chart-grid: #e4ece7;
+
   --shadow: 0 1px 2px rgba(16, 40, 26, 0.06), 0 8px 24px rgba(16, 40, 26, 0.07);
   --shadow-lg: 0 12px 40px rgba(16, 40, 26, 0.14);
+}
 
+/* Dark: the landing page's dark palette (pl-onboarding.css) carried through the app. */
+[data-theme='dark'] {
+  color-scheme: dark;
+  --white: #ffffff;
+  --bg: #0a120d;
+  --surface: #101a14;
+
+  --green-900: #0a4526;
+  --green-700: #8fdca8;
+  --green-600: #178a4a;
+  --green-500: #2fb46a;
+  --green-300: #5fbf87;
+  --green-200: #24452f;
+  --green-100: #15301f;
+  --green-50: #122219;
+
+  --ink: #eaf3ec;
+  --ink-2: #c4d3c8;
+  --muted: #9bb0a2;
+  --line: #213227;
+
+  --red: #e25c5c;
+  --red-bg: #361919;
+  --amber: #eeac45;
+  --amber-bg: #33270f;
+  --blue: #5b8fe6;
+  --blue-bg: #16233a;
+  --grey-bg: #18241d;
+
+  --btn-hover: #1f9a55;
+  --inverse: #2a4033;
+  --info-ink: #9cc0f7;
+  --switch-off: #34463a;
+  --chart-grid: #213227;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+:root {
+  --radius: 16px;
+  --radius-sm: 10px;
   --font: 'Inter', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
   --topbar-h: 58px;
   --bottomnav-h: 64px;

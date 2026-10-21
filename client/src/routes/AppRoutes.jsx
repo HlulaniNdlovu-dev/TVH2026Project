@@ -44,8 +44,9 @@ export default function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/simulator" element={<SimulatorPage />} />
       </Route>
+      {/* Outside the onboarding shell: the simulator has its own light/dark setting. */}
+      <Route path="/simulator" element={<SimulatorPage />} />
 
       <Route element={<ProtectedRoute role="citizen" />}>
         <Route path="/citizen/:userId" element={<CitizenLayout />}>

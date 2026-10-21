@@ -1,5 +1,5 @@
 /* ---------- landing ---------- */
-.landing { position: relative; min-height: 100%; background: #fff; overflow: hidden; }
+.landing { position: relative; min-height: 100%; background: var(--surface); overflow: hidden; }
 .landing-bg {
   position: absolute; inset: 0; pointer-events: none;
   background:
@@ -25,7 +25,7 @@
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
 .landing-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; max-width: 1180px; margin: 0 auto; padding: 8px 24px 40px; }
-.feature { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.feature { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
 .feature h3 { margin: 0 0 6px; }
 .feature p { color: var(--muted); margin: 0; }
 .feature-icon { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 12px; background: var(--green-100); color: var(--green-700); }
@@ -41,9 +41,9 @@
 /* ---------- login / register ---------- */
 .auth-page {
   min-height: 100%; display: flex; align-items: flex-start; justify-content: center; padding: 28px 16px 48px;
-  background: radial-gradient(800px 420px at 50% -10%, var(--green-100), transparent 60%), #fff;
+  background: radial-gradient(800px 420px at 50% -10%, var(--green-100), transparent 60%), var(--surface);
 }
-.auth-card { width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 26px 22px; box-shadow: var(--shadow); }
+.auth-card { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 26px 22px; box-shadow: var(--shadow); }
 .auth-card-wide { max-width: 560px; }
 .auth-card h1 { margin: 18px 0 4px; }
 .demo-accounts { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }

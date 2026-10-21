@@ -1,5 +1,5 @@
 /* ---------- stat cards ---------- */
-.stat-card { display: flex; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+.stat-card { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
 .stat-icon { width: 42px; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: var(--green-100); color: var(--green-700); flex: none; }
 .stat-red .stat-icon { background: var(--red-bg); color: var(--red); }
 .stat-amber .stat-icon { background: var(--amber-bg); color: var(--amber); }
@@ -75,7 +75,7 @@
 .step::before { content: ''; position: absolute; left: 11px; top: 26px; bottom: 0; width: 2px; background: var(--line); }
 .step:last-child::before { display: none; }
 .step.done::before { background: var(--green-500); }
-.step-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: #fff; display: flex; align-items: center; justify-content: center; flex: none; color: #fff; z-index: 1; }
+.step-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); display: flex; align-items: center; justify-content: center; flex: none; color: #fff; z-index: 1; }
 .step.done .step-dot { background: var(--green-500); border-color: var(--green-500); }
 .step.now .step-dot { border-color: var(--green-500); box-shadow: 0 0 0 5px var(--green-100); }
 .step.now.paused .step-dot { border-color: #e59a1a; box-shadow: 0 0 0 5px var(--amber-bg); }
@@ -96,9 +96,22 @@
 /* ---------- tabs ---------- */
 .tabs { display: flex; gap: 6px; background: var(--grey-bg); padding: 4px; border-radius: 12px; width: fit-content; max-width: 100%; overflow-x: auto; }
 .tabs button { font: inherit; font-weight: 600; font-size: .9rem; padding: 8px 16px; border-radius: 9px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
-.tabs button.active { background: #fff; color: var(--green-700); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.tabs button.active { background: var(--surface); color: var(--green-700); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 
 /* ---------- priority breakdown ---------- */
 .bar-row { display: grid; grid-template-columns: 150px 1fr 40px; gap: 10px; align-items: center; font-size: .86rem; margin: 6px 0; }
 .bar-track { height: 10px; border-radius: 999px; background: var(--grey-bg); overflow: hidden; }
 .bar-track span { display: block; height: 100%; background: var(--green-500); border-radius: 999px; }
+
+/* ---------- theme toggle in the portal bars (the floating one lives in pl-onboarding.css) ---------- */
+.theme-inline { padding: 6px; min-width: 34px; }
+.theme-inline svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.theme-inline .sun, .theme-inline[data-state='dark'] .moon { display: none; }
+.theme-inline[data-state='dark'] .sun { display: block; }
+
+/* ---------- Leaflet chrome follows the theme (tiles switch in BaseMap.jsx) ---------- */
+.leaflet-container { background: var(--grey-bg); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-lg); }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--surface); color: var(--ink); border-bottom-color: var(--line); }
+.leaflet-container .leaflet-control-attribution { background: color-mix(in srgb, var(--surface) 80%, transparent); color: var(--muted); }
+.leaflet-container .leaflet-control-attribution a { color: var(--green-700); }

@@ -3,6 +3,8 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
 import Spinner from '../Spinner.jsx';
+import ThemeToggle from '../ThemeToggle.jsx';
+import { useTheme } from '../../features/theme/ThemeContext.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
 import { withUser } from '../../features/auth/userPaths.js';
 import { useToast } from '../Toast.jsx';
@@ -22,6 +24,7 @@ const LINKS = [
 
 export default function AdminLayout() {
   const { user, logout } = useAuth();
+  const { theme, toggle } = useTheme();
   const [open, setOpen] = useState(false);
   const toast = useToast();
   const location = useLocation();
@@ -51,7 +54,10 @@ export default function AdminLayout() {
           ))}
         </nav>
         <div className="foot">
-          <div className="small"><strong>{user.name}</strong><div className="muted">Municipal administrator</div></div>
+          <div className="row-between">
+            <div className="small"><strong>{user.name}</strong><div className="muted">Municipal administrator</div></div>
+            <ThemeToggle theme={theme} onToggle={toggle} inline />
+          </div>
           <button type="button" className="btn btn-outline btn-sm" onClick={reset}><Icon name="refresh" size={16} /> Reset demo data</button>
           <button type="button" className="btn btn-ghost btn-sm" onClick={logout}><Icon name="logout" size={16} /> Log out</button>
         </div>

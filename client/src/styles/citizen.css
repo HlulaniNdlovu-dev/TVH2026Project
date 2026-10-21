@@ -26,7 +26,7 @@
 
 /* ---------- notifications ---------- */
 .notification-list { display: flex; flex-direction: column; gap: 8px; }
-.notification { display: flex; gap: 12px; align-items: flex-start; width: 100%; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; font: inherit; cursor: pointer; text-align: left; }
+.notification { display: flex; gap: 12px; align-items: flex-start; width: 100%; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); font: inherit; cursor: pointer; text-align: left; }
 .notification.unread { background: var(--green-50); border-color: var(--green-200); }
 .notification-icon { width: 38px; height: 38px; border-radius: 11px; background: var(--green-100); color: var(--green-700); display: inline-flex; align-items: center; justify-content: center; flex: none; }
 .notification.type-resolved .notification-icon { background: var(--green-600); color: #fff; }
@@ -35,7 +35,7 @@
 .notification-text { display: block; color: var(--ink-2); font-size: .92rem; }
 .notification-time { display: block; color: var(--muted); font-size: .78rem; margin-top: 2px; }
 .unread-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green-600); flex: none; margin-top: 6px; }
-.sms-bubble { background: #fff; border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 12px 14px; max-width: 92%; }
+.sms-bubble { background: var(--surface); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 12px 14px; max-width: 92%; }
 
 /* ---------- profile ---------- */
 .pref-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }

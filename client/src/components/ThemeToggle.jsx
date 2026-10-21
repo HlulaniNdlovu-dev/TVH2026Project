@@ -1,12 +1,13 @@
-// Light/dark toggle for the onboarding wrappers only. Presentational: the parent
-// owns the theme value and persistence. The label/title describe the NEXT action.
-export default function ThemeToggle({ theme, onToggle }) {
+// Light/dark toggle. Presentational: the parent owns the theme value and persistence.
+// The label/title describe the NEXT action. `inline` fits it into a top bar or sidebar
+// instead of floating in the corner.
+export default function ThemeToggle({ theme, onToggle, inline = false }) {
   const next = theme === 'dark' ? 'light' : 'dark';
   const label = `Switch to ${next} mode`;
   return (
     <button
       type="button"
-      className="pl-theme-btn"
+      className={inline ? 'btn btn-ghost btn-sm theme-inline' : 'pl-theme-btn'}
       data-state={theme}
       onClick={onToggle}
       aria-label={label}

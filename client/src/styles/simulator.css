@@ -1,6 +1,6 @@
 /* ---------- sensor simulator control panel (/simulator) ---------- */
-.sim-page { min-height: 100%; background: var(--bg); }
-.sim-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px 24px; background: #fff; border-bottom: 1px solid var(--line); }
+.sim-page { min-height: 100%; background: var(--bg); color: var(--ink); }
+.sim-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px 24px; background: var(--surface); border-bottom: 1px solid var(--line); }
 .sim-top h1 { font-size: 1.3rem; margin: 8px 0 2px; }
 .sim-top p { margin: 0; }
 .sim-banner { padding: 16px 24px 0; }
