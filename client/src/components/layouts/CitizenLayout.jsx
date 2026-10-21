@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
+import Spinner from '../Spinner.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
 import { withUser } from '../../features/auth/userPaths.js';
 import { useUnreadCount } from '../../features/notifications/useUnreadCount.js';
@@ -27,8 +29,13 @@ export default function CitizenLayout() {
           </button>
         </div>
       </header>
-      <main className="m-content">
-        <Outlet />
+      {/* Only this area scrolls, and only it waits while a page loads, so the bars stay put. */}
+      <main className="m-scroll">
+        <div className="m-content">
+          <Suspense fallback={<Spinner />}>
+            <Outlet />
+          </Suspense>
+        </div>
       </main>
       <nav className="m-bottomnav" aria-label="Main">
         {TABS.map((tab) => (

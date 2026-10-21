@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Icon from '../Icon.jsx';
 import Logo from '../Logo.jsx';
+import Spinner from '../Spinner.jsx';
 import { useAuth } from '../../features/auth/useAuth.js';
 import { withUser } from '../../features/auth/userPaths.js';
 import { useToast } from '../Toast.jsx';
@@ -59,7 +60,9 @@ export default function AdminLayout() {
         <button type="button" className="btn btn-outline btn-sm a-menu-btn" style={{ marginBottom: 12 }} onClick={() => setOpen(true)}>
           <Icon name="menu" size={18} /> Menu
         </button>
-        <Outlet />
+        <Suspense fallback={<Spinner />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );
