@@ -2,7 +2,7 @@
 import * as stubs from '../db/stubs.js';
 import { config } from '../config/index.js';
 import { haversine } from '../utils/geo.js';
-import { nowIso, secondsSince } from '../utils/time.js';
+import { nowIso } from '../utils/time.js';
 import * as audit from './auditService.js';
 
 const OPEN_JOB_STATES = ['pending', 'accepted'];
@@ -22,7 +22,9 @@ export async function pickTechnician(incident, node, excludeIds = []) {
       const open = counts.get(t.id) ?? 0;
       const distanceKm = (haversine(t.tech, node) ?? 0) / 1000;
       const qualified = t.tech.skills.includes(incident.nodeType);
-      const score = distanceKm + open * 6 + (qualified ? 0 : 12);
+      // Keep substation-qualified technicians free for network faults rather than single meter boxes.
+      const reserved = incident.nodeType === 'house' && t.tech.skills.includes('substation');
+      const score = distanceKm + open * 6 + (qualified ? 0 : 12) + (reserved ? 15 : 0);
       return { tech: t, open, distanceKm, qualified, score };
     })
     .filter((c) => c.open < config.maxOpenJobsPerTechnician)
@@ -61,7 +63,7 @@ export async function releaseJob(incident, reason, { cancel = false } = {}) {
   await stubs.updateIncident(incident.id, { technicianId: null, jobId: null });
 }
 
-// Technician declined (or did not answer): put the incident back in the queue and exclude them next time.
+// Technician declined: put the incident back in the queue and exclude them next time.
 export async function returnToQueue(job, incident, reason, actorName) {
   await stubs.updateJob(job.id, { state: 'declined', declineReason: reason });
   const declinedBy = [...new Set([...(incident.declinedBy ?? []), job.technicianId])];
@@ -97,15 +99,4 @@ export async function assignPending() {
     assigned += 1;
   }
   return assigned;
-}
-
-// Offers nobody answered go to the next technician.
-export async function expireStaleOffers() {
-  const pending = await stubs.listJobs({ states: ['pending'] });
-  for (const job of pending) {
-    if (secondsSince(job.offeredAt) < config.offerTimeoutSeconds) continue;
-    const incident = await stubs.findIncidentById(job.incidentId);
-    const tech = await stubs.findUserById(job.technicianId);
-    if (incident && tech) await returnToQueue(job, incident, 'No response to the job offer', tech.name);
-  }
 }

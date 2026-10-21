@@ -96,7 +96,6 @@ export const evaluate = () => runExclusive(evaluateNow);
 export function tick() {
   return runExclusive(async () => {
     await evaluateNow();
-    await assignment.expireStaleOffers();
     await assignment.assignPending();
   });
 }

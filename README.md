@@ -102,8 +102,9 @@ Log in as a citizen on a phone (or a tab), a technician in another tab and the a
 - **Priority:** an explainable score (customers, critical facilities, vulnerable customers, danger reports, weighted
   citizen reports, sensor confirmation, waiting time). Reports made away from the registered meter count for less
   than reports from the property. Admins can override with a reason.
-- **Auto-assignment:** closest available, least busy, qualified technician, highest priority first. Declined or
-  unanswered jobs move to the next technician.
+- **Auto-assignment:** closest available, least busy, qualified technician, highest priority first. Technicians
+  qualified for substations are kept free for transformer and substation faults where possible. A declined job moves
+  to the next technician; an unanswered offer stays with its technician until they respond or an admin reassigns it.
 - **Real time:** the server checks the grid every second and screens poll the API every 1.5 to 3 seconds (no websockets needed).
 
 ## Configuration (all optional)
@@ -114,7 +115,6 @@ Log in as a citizen on a phone (or a tab), a technician in another tab and the a
 | server | `RUN_SIMULATOR` | `true` | `false` runs the API without the built-in simulator (then run `simulator/` on its own) |
 | server | `OUTAGE_DEBOUNCE_SECONDS` | 0 | how long a sensor must stay off before it counts |
 | server | `LOADSHEDDING_GRACE_MINUTES` | 0 | how long after a slot before an outage is treated as a fault |
-| server | `OFFER_TIMEOUT_SECONDS` | 60 | an unanswered job offer moves to the next technician after this |
 | server | `DEVICE_KEY` | `powerlink-sim-key` | shared key a standalone simulator sends |
 | server | `DRIVE_SECONDS` | 12 | how long a technician's simulated drive to the site takes |
 | client | `VITE_API_URL` | `http://<host>:4000/api` | API address when the app is hosted |

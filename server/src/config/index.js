@@ -15,8 +15,6 @@ export const config = {
   graceSeconds: num(process.env.REPAIR_GRACE_SECONDS, 5),
   // How long after a loadshedding window ends before a still-off node counts as a fault.
   loadsheddingGraceMinutes: num(process.env.LOADSHEDDING_GRACE_MINUTES, 0),
-  // A pending job offer that is not answered in this time is offered to someone else.
-  offerTimeoutSeconds: num(process.env.OFFER_TIMEOUT_SECONDS, 60),
   // A sensor with no heartbeat for this long is shown as offline.
   sensorOfflineSeconds: num(process.env.SENSOR_OFFLINE_SECONDS, 30),
   // Set RUN_SIMULATOR=false to run the simulator as its own process instead (npm --prefix simulator start).
